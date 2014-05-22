@@ -9,6 +9,7 @@
  *      Author: dkruger
  */
 #include <iostream>
+#include <stdlib.h>
 using namespace std;
 #if 0
   // not implemented yet, get busy people!
