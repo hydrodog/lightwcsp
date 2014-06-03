@@ -13,7 +13,7 @@
 using namespace std;
 #if 0
   // not implemented yet, get busy people!
-  Logger logger;
+  Logger logger1;
   Config config; // create a config object
 #endif
 int main() {
