@@ -4,7 +4,7 @@
  *  Created on: May 22, 2014
  *      Author: dkruger
  */
-#include "Config.h"
+#include "include/Config.h"
 
 Config::Config(const char filename[]) {
 

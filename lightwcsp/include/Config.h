@@ -13,9 +13,7 @@ public:
   /*
    * Load the config from a file
    */
-  Config(const char filename[]) {
-
-  }
+  Config(const char filename[]);
 };
 
 #endif /* CONFIG_H_ */
