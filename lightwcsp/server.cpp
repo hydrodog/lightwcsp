@@ -34,12 +34,12 @@ Logger logger1;
 Config config; // create a config object
 #endif
 
-namespace regExpressions {
-const regex digits("[0-9]+");
-const regex method("(GET|POST)\\s(\\S*)\\s(\\S*)");
-const regex urlPath("^([\\S]*)\\?(\\S*)$");
-const regex pathEnd("\\/$");
-}
+//namespace regExpressions {
+  //const regex digits("[0-9]+");
+  //const regex method("(GET|POST)\\s(\\S*)\\s(\\S*)");
+  //const regex urlPath("^([\\S]*)\\?(\\S*)$");
+  //const regex pathEnd("\\/$");
+//}
 
 void accept_request(int client);
 void not_found(int client);
@@ -78,14 +78,21 @@ void accept_request(int client)
 
 	smatch sm;
 	string received(buf);
-	if (regex_match(received, sm, regExpressions::method))
-	{
-		if(sm[1].compare("GET") == 0) { //GET
+	//if (regex_match(received, sm, regExpressions::method))
+	//{
+	//	if(sm[1].compare("GET") == 0) { //GET
 
-		}
-		else if(sm[1].compare("POST") == 0) {
-			cgi = 1;
-		}
+	//	}
+	//	else if(sm[1].compare("POST") == 0) {
+	//		cgi = 1;
+	//	}
+	//}
+	if(received.compare(0,3,"GET")==0){
+	  cout<<"Received:" <<received<<"\n";
+
+	}
+	else if(received.compare(0,4,"POST") == 0) {
+	     cgi = 1;
 	}
 	else {
 		unimplemented(client);
@@ -95,14 +102,14 @@ void accept_request(int client)
 	smatch urlMatch;
 	string url;
 	url = sm[2];
-	if(regex_match(url, urlMatch, regExpressions::urlPath)) {
+	/*if(regex_match(url, urlMatch, regExpressions::urlPath)) {
 		url = urlMatch[1];
 		cgi = 1;
-	}
+		}*/
 
 	//    sprintf(path, "htdocs%s", url);
 	string path = "htdocs" + url;
-	if (regex_match(path,regExpressions::pathEnd)) {
+	if (path[path.size()-1]=='/') {
 		path+= "index.html";
 	}
 	if (stat(path.c_str(), &st) == -1) {
