@@ -16,8 +16,9 @@
 #include <cstring>
 #include <regex>
 #include <thread>
+#include <server.h>
 
-#define SERVER_STRING "Server: jdbhttpd/0.1.0\r\n"
+#define SERVER_STRING "Server: lightwcsp/0.1.0\r\n"
 
 #define PORT "80"  // the port users will be connecting to
 
@@ -25,58 +26,48 @@
 
 #define BUFF_SIZE 1024
 #define URL_SIZE 512
+#define MAX_URL_SIZE 4096
 
 using namespace std;
 
 #if 0
 // not implemented yet, get busy people!
 Logger logger1;
-Config config; // create a config object
+Config config;// create a config object
 #endif
 
 //namespace regExpressions {
-  //const regex digits("[0-9]+");
-  //const regex method("(GET|POST)\\s(\\S*)\\s(\\S*)");
-  //const regex urlPath("^([\\S]*)\\?(\\S*)$");
-  //const regex pathEnd("\\/$");
+//const regex digits("[0-9]+");
+//const regex method("(GET|POST)\\s(\\S*)\\s(\\S*)");
+//const regex urlPath("^([\\S]*)\\?(\\S*)$");
+//const regex pathEnd("\\/$");
 //}
 
-void accept_request(int client);
-void not_found(int client);
-void serve_file(int client, const char *filename);
-int startup(u_short *port);
-void unimplemented(int client);
-void headers(int client, const char *filename);
-void cat(int client, FILE *resource);
-void error_die(const char *sc);
-
-void inline sigchld_handler(int s)
-{
-	while(waitpid(-1, NULL, WNOHANG) > 0);
+void inline sigchld_handler(int s) {
+	while (waitpid(-1, NULL, WNOHANG) > 0)
+		;
 }
 
 // get sockaddr, IPv4 or IPv6:
-void inline *get_in_addr(struct sockaddr *sa)
-{
+void inline *get_in_addr(struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET) {
-		return &(((struct sockaddr_in*)sa)->sin_addr);
+		return &(((struct sockaddr_in*) sa)->sin_addr);
 	}
 
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+	return &(((struct sockaddr_in6*) sa)->sin6_addr);
 }
 
-void accept_request(int client)
-{
+void accept_request(int client) {
 	char buf[BUFF_SIZE];
 	int numchars;
-	size_t i, j;
+	size_t i;
 	struct stat st;
-	int cgi = 0;      /* becomes true if server decides this is a CGI
+	int cgi = 0; /* becomes true if server decides this is a CGI
 	 * program */
 
-	numchars = recv(client, buf, BUFF_SIZE-1,0);
+	numchars = recv(client, buf, BUFF_SIZE - 1, 0);
 
-	smatch sm;
+//	smatch sm;
 	string received(buf);
 	//if (regex_match(received, sm, regExpressions::method))
 	//{
@@ -87,43 +78,49 @@ void accept_request(int client)
 	//		cgi = 1;
 	//	}
 	//}
-	if(received.compare(0,3,"GET")==0){
-	  cout<<"Received:" <<received<<"\n";
-
-	}
-	else if(received.compare(0,4,"POST") == 0) {
-	     cgi = 1;
-	}
-	else {
+	short cursor = 0;
+	if (received.compare(0, 3, "GET") == 0) {
+		cout << "Received:" << received << "\n";
+		cursor = 4;
+	} else if (received.compare(0, 4, "POST") == 0) {
+		cgi = 1;
+		cursor = 5;
+	} else {
 		unimplemented(client);
 		return;
 	}
+	char url[MAX_URL_SIZE]; //max url size is 4096
+	snprintf(url, 3, "\0");
+	short urlPos=0;
+//	smatch urlMatch
+	while (buf[cursor] != ' ') {
+		if(buf[cursor]!=0){
+			url[urlPos] = buf[cursor];
+		}
+		else{
 
-	smatch urlMatch;
-	string url;
-	url = sm[2];
+		}
+	}
+//	url = sm[2];
 	/*if(regex_match(url, urlMatch, regExpressions::urlPath)) {
-		url = urlMatch[1];
-		cgi = 1;
-		}*/
+	 url = urlMatch[1];
+	 cgi = 1;
+	 }*/
 
 	//    sprintf(path, "htdocs%s", url);
 	string path = "htdocs" + url;
-	if (path[path.size()-1]=='/') {
-		path+= "index.html";
+	if (path[path.size() - 1] == '/') {
+		path += "index.html";
 	}
 	if (stat(path.c_str(), &st) == -1) {
-		while ((numchars > 0)/*&& strcmp("\n", buf)*/)  /* read & discard headers */
-			numchars = recv(client, buf, BUFF_SIZE-1,0);
+		while ((numchars > 0)/*&& strcmp("\n", buf)*/) /* read & discard headers */
+			numchars = recv(client, buf, BUFF_SIZE - 1, 0);
 		not_found(client);
-	}
-	else
-	{
+	} else {
 		if ((st.st_mode & S_IFMT) == S_IFDIR)
-			path+= "index.html";
-		if ((st.st_mode & S_IXUSR) ||
-				(st.st_mode & S_IXGRP) ||
-				(st.st_mode & S_IXOTH)    )
+			path += "index.html";
+		if ((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP)
+				|| (st.st_mode & S_IXOTH))
 			cgi = 1;
 		if (!cgi)
 			serve_file(client, path.c_str());
@@ -133,69 +130,73 @@ void accept_request(int client)
 	close(client);
 }
 
-void not_found(int client)
-{
+void not_found(int client) {
 	char buf[BUFF_SIZE];
-	snprintf(buf, BUFF_SIZE, strcat(strcat("HTTP/1.0 404 NOT FOUND\r\n",SERVER_STRING),
-			"Content-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
+	snprintf(buf, BUFF_SIZE,
+			strcat(strcat("HTTP/1.0 404 NOT FOUND\r\n", SERVER_STRING),
+					"Content-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
 	    		<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\n\
 				is unavailable or nonexistent.\r\n</BODY></HTML>\r\n"));
 	send(client, buf, strlen(buf), 0);
 }
 
-void serve_file(int client, const char *filename)
-{
+void serve_file(int client, const char *filename) {
 	FILE *resource = NULL;
 	int numchars = 1;
 	char buf[BUFF_SIZE];
 
-	buf[0] = 'A'; buf[1] = '\0';
+	buf[0] = 'A';
+	buf[1] = '\0';
 	//    while ((numchars > 0) && strcmp("\n", buf))  /* read & discard headers */
 	//    	numchars = recv(client, buf, BUFF_SIZE-1,0);
 
 	resource = fopen(filename, "r");
 	if (resource == NULL)
 		not_found(client);
-	else
-	{
+	else {
 		headers(client, filename);
 		cat(client, resource);
 	}
 	fclose(resource);
 }
 
-void headers(int client, const char *filename)
-{
+void headers(int client, const char *filename) {
 	char buf[BUFF_SIZE];
-	(void)filename;  /* could use filename to determine file type */
+	(void) filename; /* could use filename to determine file type */
 
-	strcpy(buf, strcat(strcat("HTTP/1.0 200 OK\r\n",SERVER_STRING),"Content-Type: text/html\r\n\r\n"));
+	strcpy(buf,
+			strcat(strcat("HTTP/1.0 200 OK\r\n", SERVER_STRING),
+					"Content-Type: text/html\r\n\r\n"));
 	send(client, buf, strlen(buf), 0);
 }
 
-void cat(int client, FILE *resource)
-{
+void cat(int client, FILE *resource) {
 	char buf[BUFF_SIZE];
-	while (fgets(buf, BUFF_SIZE, resource) != NULL)
-	{
-		send(client, buf, strlen(buf), 0);
+	while (fgets(buf, BUFF_SIZE, resource) != NULL) {
+		if(feof(resource)){
+			send(client, buf, strlen(buf), 0);
+			break;
+		}
+		else {
+			send(client, buf, BUFF_SIZE-1, 0);
+		}
+
 	}
 }
 
-int startup(u_short *port)
-{
+int startup(u_short *port) {
 	int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
 	struct addrinfo hints, *servinfo, *p;
 	struct sockaddr_storage their_addr; // connector's address information
 	socklen_t sin_size;
 	struct sigaction sa;
-	int yes=1;
+	int yes = 1;
 	char s[INET6_ADDRSTRLEN];
 	int rv;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;  // Make connection IP version agnostic
-	hints.ai_socktype = SOCK_STREAM;  // Will use Stream sockets and therefore, TCP
+	hints.ai_socktype = SOCK_STREAM; // Will use Stream sockets and therefore, TCP
 	hints.ai_flags = AI_PASSIVE; // use my IP
 
 	if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
@@ -205,15 +206,15 @@ int startup(u_short *port)
 	}
 
 	// loop through all the results and bind to the first we can
-	for(p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype,
-				p->ai_protocol)) == -1) {
+	for (p = servinfo; p != NULL; p = p->ai_next) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol))
+				== -1) {
 			perror("server: socket");
 			continue;
 		}
 
-		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
-				sizeof(int)) == -1) {
+		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))
+				== -1) {
 			perror("setsockopt");
 			exit(1);
 		}
@@ -227,7 +228,7 @@ int startup(u_short *port)
 		break;
 	}
 
-	if (p == NULL)  {
+	if (p == NULL) {
 		perror("Server failed to bind\n");
 		exit(1);
 	}
@@ -251,23 +252,22 @@ int startup(u_short *port)
 	return sockfd;
 }
 
-void error_die(const char *sc)
-{
+void error_die(const char *sc) {
 	perror(sc);
 	exit(1);
 }
 
-void unimplemented(int client)
-{
+void unimplemented(int client) {
 	char buf[BUFF_SIZE];
-	snprintf(buf, BUFF_SIZE, strcat(strcat("HTTP/1.0 501 Method Not Implemented\r\n",SERVER_STRING),
-			"Content-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
+	snprintf(buf, BUFF_SIZE,
+			strcat(strcat("HTTP/1.0 501 Method Not Implemented\r\n",
+			SERVER_STRING),
+					"Content-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
     		</HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n"));
 	send(client, buf, strlen(buf), 0);
 }
 
-int main(void)
-{
+int main(void) {
 	int server_sock = -1;
 	u_short port = 0;
 	int client_sock = -1;
@@ -278,15 +278,13 @@ int main(void)
 	server_sock = startup(&port);
 	printf("httpd running on port %d\n", port);
 
-	while (1)
-	{
-		client_sock = accept(server_sock,
-				(struct sockaddr *)&client_name,
+	while (1) {
+		client_sock = accept(server_sock, (struct sockaddr *) &client_name,
 				&client_name_len);
 		if (client_sock == -1)
 			error_die("accept");
 		/* accept_request(client_sock); */
-		thread newThread(accept_request,client_sock);
+		thread newThread(accept_request, client_sock);
 	}
 
 	//	while(1) {  // main accept() loop
@@ -313,6 +311,6 @@ int main(void)
 	//		close(new_fd);  // parent doesn't need this
 	//	}
 	close(server_sock);
-	return(0);
+	return (0);
 }
 
