@@ -100,11 +100,9 @@ void accept_request(int client) {
 
 void not_found(int client) {
 	char buf[BUFF_SIZE];
-	snprintf(buf, BUFF_SIZE,
-			strcat(strcat("HTTP/1.0 404 NOT FOUND\r\n", SERVER_STRING),
-					"Content-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
+	snprintf(buf, BUFF_SIZE,"HTTP/1.0 404 NOT FOUND\r\n%sContent-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
 	    		<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\n\
-				is unavailable or nonexistent.\r\n</BODY></HTML>\r\n"));
+				is unavailable or nonexistent.\r\n</BODY></HTML>\r\n",SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
 
@@ -127,9 +125,7 @@ void headers(int client, const char *filename) {
 	char buf[BUFF_SIZE];
 	(void) filename; /* could use filename to determine file type */
 
-	strcpy(buf,
-			strcat(strcat("HTTP/1.0 200 OK\r\n", SERVER_STRING),
-					"Content-Type: text/html\r\n\r\n"));
+	snprintf(buf,BUFF_SIZE,"HTTP/1.0 200 OK\r\n%sContent-Type: text/html\r\n\r\n",SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
 
@@ -216,11 +212,8 @@ void error_die(const char *sc) {
 
 void unimplemented(int client) {
 	char buf[BUFF_SIZE];
-	snprintf(buf, BUFF_SIZE,
-			strcat(strcat("HTTP/1.0 501 Method Not Implemented\r\n",
-			SERVER_STRING),
-					"Content-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
-    		</HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n"));
+	snprintf(buf, BUFF_SIZE,"HTTP/1.0 501 Method Not Implemented\r\n%sContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
+    		</HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n",SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
 
