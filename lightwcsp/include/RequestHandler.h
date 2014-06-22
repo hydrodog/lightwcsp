@@ -17,6 +17,7 @@ private:
 	const int BUFFER_SIZE = 1024;
 	int bodySize;
 	int bodyLength;
+    int urlLength;
 	httpMethod method;
 	char * url;
 	char * httpVersion;
@@ -28,6 +29,7 @@ private:
 public:
 	RequestHandler(int socketId);
 	int getBodyLength();
+    int getUrlLength();
 	const char * getBody();
 	const char * getVersion();
 	const char * getHost();

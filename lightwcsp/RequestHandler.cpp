@@ -62,6 +62,7 @@ RequestHandler::RequestHandler(const int socketId) {
 		method = UNIMPLEMENTED;
 	}
 	url = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
+    urlLength = currentTokenLength;
 	httpVersion = getNextToken(cursor, data, dataSize, socketId,
 			currentTokenLength);
 	getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
@@ -89,6 +90,10 @@ const char * RequestHandler::getHost() {
 
 const char * RequestHandler::getUrl() {
 	return url;
+}
+
+int RequestHandler::getUrlLength() {
+	return urlLength;
 }
 
 const httpMethod RequestHandler::getMethod(){

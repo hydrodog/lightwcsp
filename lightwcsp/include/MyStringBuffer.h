@@ -15,7 +15,7 @@ private:
 	int length;
 	char * data;
 public:
-	MyStringBuffer(int initialSize);
+	MyStringBuffer(int initialSize = DEFAULT_BUFFER_SIZE);
 	MyStringBuffer(int initialSize, const char * initialValue);
 	void inline append(const char * right);
 	void append(const char * right, int bytes);

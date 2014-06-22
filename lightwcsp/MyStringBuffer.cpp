@@ -8,7 +8,7 @@
 #include "MyStringBuffer.h"
 #include <cstring>
 
-MyStringBuffer::MyStringBuffer(int initialSize = DEFAULT_BUFFER_SIZE) {
+MyStringBuffer::MyStringBuffer(int initialSize) {
 	data = new char[initialSize];
 	data[0] = 0;
 	size = initialSize;

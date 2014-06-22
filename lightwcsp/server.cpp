@@ -59,7 +59,7 @@ void accept_request(int client) {
 
 	RequestHandler myReq(client);
 	char url[MAX_URL_SIZE];
-	strncpy(url, myReq.getUrl(), sizeof(myReq.getUrl()));
+	strncpy(url, myReq.getUrl(), myReq.getUrlLength()+1);
 	int urlPos = 0;
 	switch (myReq.getMethod()) {
 	case GET:
@@ -172,7 +172,7 @@ int startup(u_short *port) {
 			exit(1);
 		}
 
-		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+		if (::bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
 			close(sockfd);
 			perror("server: bind");
 			continue;
@@ -222,7 +222,7 @@ int main(void) {
 	u_short port = 0;
 	int client_sock = -1;
 	struct sockaddr_in client_name;
-	int client_name_len = sizeof(client_name);
+	unsigned int client_name_len = sizeof(client_name);
 
 	server_sock = startup(&port);
 	printf("httpd running on port %d\n", port);
