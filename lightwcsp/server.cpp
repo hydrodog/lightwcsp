@@ -73,22 +73,25 @@ void accept_request(int client) {
 	default:
 		break;
 	}
-	string path = string("htdocs") + string(url);
-	if (path[path.size() - 1] == '/') {
-		path += "index.html";
+	char path[4200];
+	if (url[0] == '/') {
+		snprintf(path, 4200, "htdocs%s", url);
 	}
-	if (stat(path.c_str(), &st) == -1) {
+	if (path[strlen(path) - 1] == '/') {
+		strcat(path, "index.html");
+	}
+	if (stat(path, &st) == -1) {
 		while ((numchars > 0)/*&& strcmp("\n", buf)*/) /* read & discard headers */
 			numchars = recv(client, buf, BUFF_SIZE - 1, 0);
 		not_found(client);
 	} else {
 		if ((st.st_mode & S_IFMT) == S_IFDIR)
-			path += "index.html";
+			strcat(path, "index.html");
 		if ((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP)
 				|| (st.st_mode & S_IXOTH))
 			cgi = 1;
 		if (!cgi)
-			serve_file(client, path.c_str());
+			serve_file(client, path);
 		//        else
 		//            execute_cgi(client, path, method, query_string);
 	}
