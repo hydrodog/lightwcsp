@@ -17,6 +17,7 @@
 #include <regex>
 #include <thread>
 #include <server.h>
+#include <RequestHandler.h>
 
 #define SERVER_STRING "Server: lightwcsp/0.1.0\r\n"
 
@@ -36,19 +37,11 @@ Logger logger1;
 Config config;// create a config object
 #endif
 
-//namespace regExpressions {
-//const regex digits("[0-9]+");
-//const regex method("(GET|POST)\\s(\\S*)\\s(\\S*)");
-//const regex urlPath("^([\\S]*)\\?(\\S*)$");
-//const regex pathEnd("\\/$");
-//}
-
 void inline sigchld_handler(int s) {
 	while (waitpid(-1, NULL, WNOHANG) > 0)
 		;
 }
 
-// get sockaddr, IPv4 or IPv6:
 void inline *get_in_addr(struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET) {
 		return &(((struct sockaddr_in*) sa)->sin_addr);
@@ -60,55 +53,27 @@ void inline *get_in_addr(struct sockaddr *sa) {
 void accept_request(int client) {
 	char buf[BUFF_SIZE];
 	int numchars;
-	size_t i;
 	struct stat st;
 	int cgi = 0; /* becomes true if server decides this is a CGI
 	 * program */
 
-	numchars = recv(client, buf, BUFF_SIZE - 1, 0);
-
-//	smatch sm;
-	string received(buf);
-	//if (regex_match(received, sm, regExpressions::method))
-	//{
-	//	if(sm[1].compare("GET") == 0) { //GET
-
-	//	}
-	//	else if(sm[1].compare("POST") == 0) {
-	//		cgi = 1;
-	//	}
-	//}
-	short cursor = 0;
-	if (received.compare(0, 3, "GET") == 0) {
-		cout << "Received:" << received << "\n";
-		cursor = 4;
-	} else if (received.compare(0, 4, "POST") == 0) {
+	RequestHandler myReq(client);
+	char url[MAX_URL_SIZE];
+	strncpy(url, myReq.getUrl(), sizeof(myReq.getUrl()));
+	int urlPos = 0;
+	switch (myReq.getMethod()) {
+	case GET:
+		while (url[urlPos] != 0 && url[urlPos] != '?')
+			;
+		url[urlPos] = 0; //We are temporarily discarding fields. TODO FIX
+		break;
+	case POST:
 		cgi = 1;
-		cursor = 5;
-	} else {
-		unimplemented(client);
-		return;
+		break;
+	default:
+		break;
 	}
-	char url[MAX_URL_SIZE]; //max url size is 4096
-	snprintf(url, 3, "\0");
-	short urlPos=0;
-//	smatch urlMatch
-	while (buf[cursor] != ' ') {
-		if(buf[cursor]!=0){
-			url[urlPos] = buf[cursor];
-		}
-		else{
-
-		}
-	}
-//	url = sm[2];
-	/*if(regex_match(url, urlMatch, regExpressions::urlPath)) {
-	 url = urlMatch[1];
-	 cgi = 1;
-	 }*/
-
-	//    sprintf(path, "htdocs%s", url);
-	string path = "htdocs" + url;
+	string path = string("htdocs") + string(url);
 	if (path[path.size() - 1] == '/') {
 		path += "index.html";
 	}
@@ -142,11 +107,6 @@ void not_found(int client) {
 
 void serve_file(int client, const char *filename) {
 	FILE *resource = NULL;
-	int numchars = 1;
-	char buf[BUFF_SIZE];
-
-	buf[0] = 'A';
-	buf[1] = '\0';
 	//    while ((numchars > 0) && strcmp("\n", buf))  /* read & discard headers */
 	//    	numchars = recv(client, buf, BUFF_SIZE-1,0);
 
@@ -173,25 +133,21 @@ void headers(int client, const char *filename) {
 void cat(int client, FILE *resource) {
 	char buf[BUFF_SIZE];
 	while (fgets(buf, BUFF_SIZE, resource) != NULL) {
-		if(feof(resource)){
+		if (feof(resource)) {
 			send(client, buf, strlen(buf), 0);
 			break;
-		}
-		else {
-			send(client, buf, BUFF_SIZE-1, 0);
+		} else {
+			send(client, buf, BUFF_SIZE - 1, 0);
 		}
 
 	}
 }
 
 int startup(u_short *port) {
-	int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
+	int sockfd;  // listen on sock_fd, new connection on new_fd
 	struct addrinfo hints, *servinfo, *p;
-	struct sockaddr_storage their_addr; // connector's address information
-	socklen_t sin_size;
 	struct sigaction sa;
 	int yes = 1;
-	char s[INET6_ADDRSTRLEN];
 	int rv;
 
 	memset(&hints, 0, sizeof hints);
@@ -200,8 +156,6 @@ int startup(u_short *port) {
 	hints.ai_flags = AI_PASSIVE; // use my IP
 
 	if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
-		//		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		//		return 1;
 		error_die("getaddrinfo");
 	}
 
@@ -273,7 +227,6 @@ int main(void) {
 	int client_sock = -1;
 	struct sockaddr_in client_name;
 	int client_name_len = sizeof(client_name);
-	//pthread_t newthread;
 
 	server_sock = startup(&port);
 	printf("httpd running on port %d\n", port);
@@ -287,29 +240,6 @@ int main(void) {
 		thread newThread(accept_request, client_sock);
 	}
 
-	//	while(1) {  // main accept() loop
-	//		sin_size = sizeof their_addr;
-	//		new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
-	//		if (new_fd == -1) {
-	//			perror("accept");
-	//			continue;
-	//		}
-	//
-	//		inet_ntop(their_addr.ss_family,
-	//				get_in_addr((struct sockaddr *)&their_addr),
-	//				s, sizeof s);
-	//		printf("server: got connection from %s\n", s);
-	//
-	//		if (!fork()) { // this is the child process
-	//			close(sockfd); // child doesn't need the listener
-	//			char message[] = "Hello, world! and a longer message to test!!!";
-	//			if (send(new_fd, message, sizeof(message), 0) == -1)
-	//				perror("send");
-	//			close(new_fd);
-	//			exit(0);
-	//		}
-	//		close(new_fd);  // parent doesn't need this
-	//	}
 	close(server_sock);
 	return (0);
 }
