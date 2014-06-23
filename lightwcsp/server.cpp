@@ -142,7 +142,7 @@ void headers(int client, const char *filename) {
 
 void cat(int client, FILE *resource) {
 	char buf[BUFF_SIZE];
-	while (fgets(buf, BUFF_SIZE, resource) != NULL) {
+	while (fread(buf, 1, BUFF_SIZE, resource) != NULL) {
 		if (feof(resource)) {
             cout<<buf<<endl;
 			send(client, buf, strlen(buf), 0);
