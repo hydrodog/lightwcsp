@@ -250,7 +250,7 @@ int main(void) {
 		if (client_sock >= 0) {
 			/* accept_request(client_sock); */
 			cout << "Starting new thread\n";
-			while(!threadPool[nextThread].joinable()){
+			while(threadPool[nextThread].joinable()){
 				nextThread++;
 			}
 			threadPool[nextThread++] = thread(accept_request, client_sock);
