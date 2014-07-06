@@ -6,7 +6,11 @@
  */
 #include "include/Logger.h"
 
-Logger::Logger(const char filename[]) {
+Logger::Logger(){}
+
+Logger::loadConfig() {
+  log.open(config.getString("filename"));
+  setLevel(config.getInt("debuglevel"));
 }
 
 

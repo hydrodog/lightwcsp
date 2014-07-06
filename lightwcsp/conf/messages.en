@@ -1,0 +1,16 @@
+Resource was not found: %s\n
+File was nout found: %s\n
+Permission Denied
+Dov Says No!
+You Must Be Joking
+Listen Failed
+SIGACTION Failed
+Accept call failed
+Server is Running on Port %d
+Server is ok
+Logger Started
+Creating Threadpool
+About To Accept
+Accepted socketd
+Started Thread
+Ended Thread
