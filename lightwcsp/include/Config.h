@@ -13,6 +13,7 @@
 class Config {
 private:
 	std::map<const char*, void*> properties;
+	std::map<Logger::MESSAGE_CODES, std::string> standardMessages;
 public:
 	/*
 	 * The constructor does nothing, all the action is in load
@@ -42,6 +43,14 @@ public:
 		void* val = properties[key];
 		std::cout << key << ": " << val << "\n";
 		return (const char*) val;
+	}
+
+	inline const std::string getStandardMessage(Logger::MESSAGE_CODES code) {
+		return standardMessages[code];
+	}
+
+	inline const int getStandardMessageLength(Logger::MESSAGE_CODES code) {
+		return standardMessages[code].length();
 	}
 
 };

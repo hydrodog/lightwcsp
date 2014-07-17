@@ -132,6 +132,11 @@ void not_found(int client) {
 	send(client, buf, strlen(buf), 0);
 }
 
+void sendStandardMessage(int client, Logger::MESSAGE_CODES messageType) {
+	send(client, config.getStandardMessage(messageType).c_str(),
+			config.getStandardMessage(messageType).length(), 0);
+}
+
 void serve_file(int client, const char *filename) {
 	FILE *resource = NULL;
 	//    while ((numchars > 0) && strcmp("\n", buf))  /* read & discard headers */
