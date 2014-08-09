@@ -20,8 +20,7 @@ public:
 	 * This is not a great idea, but necessary for the timing to be
 	 * controlled in main
 	 */
-	Config() {
-	}
+	Config();
 
 	// load is separate from constructor to control timing, happens in main().
 	void load();

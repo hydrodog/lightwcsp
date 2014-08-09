@@ -4,13 +4,16 @@
  *  Created on: May 22, 2014
  *      Author: dkruger
  */
-#include "include/Logger.h"
+#include "Logger.h"
 
-Logger::Logger(){}
+Logger::Logger() {
+	debugLevel = 5;
+	fp = nullptr;
+}
 
-Logger::loadConfig() {
-  log.open(config.getString("filename"));
-  setLevel(config.getInt("debuglevel"));
+void Logger::loadConfig() {
+  //log.open(config.getString("filename"));
+  //setLevel(config.getInt("debuglevel"));
 }
 
 

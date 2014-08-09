@@ -66,9 +66,9 @@ void Buffer::append(int vals[], int n, const char sep[]) {
 	checkSpace(n * (INT_PRINTABLE_SIZE + seplen));
 	int totalLen = 0;
 
-	Node* p = buffer + used;
+	char* p = buffer + used;
 	for (int i = 0; i < n; i++) {
-		int len = sprintf(p, "%d", val);
+		int len = sprintf(p, "%d", vals[i]);
 		totalLen += len;
 		p += len;
 	}
@@ -82,9 +82,9 @@ void Buffer::append(float vals[], int n, const char sep[]) {
 	checkSpace(n * (FLOAT_PRINTABLE_SIZE + seplen));
 	int totalLen = 0;
 
-	Node* p = buffer + used;
+	char* p = buffer + used;
 	for (int i = 0; i < n; i++) {
-		int len = sprintf(p, "%d", val);
+		int len = sprintf(p, "%f", vals[i]);
 		totalLen += len;
 		p += len;
 	}
@@ -98,9 +98,9 @@ void Buffer::append(double vals[], int n, const char sep[]) {
 	checkSpace(n * (DOUBLE_PRINTABLE_SIZE + seplen));
 	int totalLen = 0;
 
-	Node* p = buffer + used;
+	char* p = buffer + used;
 	for (int i = 0; i < n; i++) {
-		int len = sprintf(p, "%d", val);
+		int len = sprintf(p, "%f", vals[i]);
 		totalLen += len;
 		p += len;
 	}

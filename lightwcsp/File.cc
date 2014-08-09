@@ -2,13 +2,13 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include "Buffer.h"
 #include "File.h"
 
 int File::readFully(const char filename[], char *p) {
 	int fh = open(filename, O_RDONLY);
 	if (fh < 0)
-		return NULL;
+		return -1;
 	struct stat s;
 	fstat(fh, &s);
 	//char* p = new char[s.st_size];
@@ -23,7 +23,7 @@ int File::readFully(const char filename[], char *p) {
 int File::readFully(const char filename[], Buffer &buf) {
 	int fh = open(filename, O_RDONLY);
 	if (fh < 0)
-		return NULL;
+		return -1;
 	struct stat s;
 	fstat(fh, &s);
 	char* p = new char[s.st_size];
@@ -39,7 +39,7 @@ int File::readFully(const char filename[], Buffer &buf) {
 int readFully(const char filename[], char* p, int size) {
 	int fh = open(filename, O_RDONLY);
 	if (fh < 0)
-		return NULL;
+		return -1;
 	int bytesRead = read(fh, p, size);
 	if (bytesRead < size) {
 		delete[] p;

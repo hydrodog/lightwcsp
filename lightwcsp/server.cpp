@@ -60,7 +60,6 @@ inline void *get_in_addr(struct sockaddr *sa) {
 
 void accept_request(int client) {
 	char buf[BUFF_SIZE];
-	int numchars = 1;
 	int cgi = 0; /* becomes true if server decides this is a CGI
 	 * program */
 
