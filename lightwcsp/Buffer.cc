@@ -21,7 +21,7 @@ void Buffer::flush() {
 }
 
 void Buffer::load(const char filename[]) {
-	File::readFully(filename, buffer, size);
+	File::readFully(filename, buffer);
 }
 
 void Buffer::append(const char buf[], int n) {

@@ -19,14 +19,14 @@ private:
 	FILE* fp; // I hate old style C files, but fprintf is really convenient.
 	// we can do better later.
 public:
-	enum LEVELS {
+	static enum LEVELS {
 		FATAL = 0, // extremely bad, instant death
 		ERROR,     // bad, a serious error
 		WARNING,   // something to watch out for
 		INFO,      // important to know
 		DETAILS    // detailed information for tracking down bugs
 	};
-	enum MESSAGE_CODES {
+	static enum MESSAGE_CODES {
 		RESOURCE_NOT_FOUND = 0, // the first group are errors
 		FILE_NOT_FOUND,
 		PERMISSION_DENIED,
@@ -57,6 +57,8 @@ public:
 
 	};
 	Logger() {
+		debugLevel = 5;
+		fp = NULL;
 	}
 
 	void loadConfig();
