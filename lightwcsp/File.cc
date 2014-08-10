@@ -35,3 +35,15 @@ int File::readFully(const char filename[], Buffer &buf) {
 	buf.append(p, bytesRead);
 	return bytesRead;
 }
+
+int readFully(const char filename[], char* p, int size) {
+	int fh = open(filename, O_RDONLY);
+	if (fh < 0)
+		return NULL;
+	int bytesRead = read(fh, p, size);
+	if (bytesRead < size) {
+		delete[] p;
+		return -1;
+	}
+	return bytesRead;
+}

@@ -95,7 +95,6 @@ void accept_request(int client) {
 		not_found(client);
 	} else {
 		if (S_ISDIR(st.st_mode)) {
-			;
 			strcat(path, "/index.html");
 		}
 //    if ((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP)

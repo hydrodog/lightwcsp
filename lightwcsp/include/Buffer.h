@@ -12,9 +12,7 @@ private:
 	int size;
 	void checkSpace(int n);
 public:
-	Buffer() {
-	}
-	Buffer(int sz) :
+	Buffer(int sz = 100) :
 			size(sz), used(0) {
 		buffer = new char[size];
 		p = buffer;
