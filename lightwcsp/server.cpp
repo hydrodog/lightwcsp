@@ -131,7 +131,7 @@ void not_found(int client) {
 	send(client, buf, strlen(buf), 0);
 }
 
-void sendStandardMessage(int client, Logger::MESSAGE_CODES messageType) {
+void sendStandardMessage(int client, int messageType) {
 	send(client, config.getStandardMessage(messageType).c_str(),
 			config.getStandardMessage(messageType).length(), 0);
 }
@@ -178,13 +178,15 @@ int startup(u_short &port) {
 	struct sigaction sa;
 	int yes = 1;
 	int rv;
+	char portString[6];
+	snprintf(portString, 5, "%d", port);
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;  // Make connection IP version agnostic
 	hints.ai_socktype = SOCK_STREAM; // Will use Stream sockets and therefore, TCP
 	hints.ai_flags = AI_PASSIVE; // use my IP
 
-	if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
+	if ((rv = getaddrinfo(NULL, portString, &hints, &servinfo)) != 0) {
 		logger.fatal(Logger::GET_ADDR_INFO);
 	}
 
@@ -227,7 +229,6 @@ int startup(u_short &port) {
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
 		logger.fatal(Logger::SIG_ACTION);
 	}
-	port = atoi(PORT);
 	return sockfd;
 }
 
