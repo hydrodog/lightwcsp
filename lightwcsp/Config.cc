@@ -26,3 +26,7 @@ Config::Config() {
 	}*/
 }
 
+void Config::load() {
+    
+}
+

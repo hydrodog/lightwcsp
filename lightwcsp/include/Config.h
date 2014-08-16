@@ -31,11 +31,15 @@ public:
 		return 0;
 	}
 	int getInt(const char* key, int defaultVal) {
-		void* val = properties[key];
+        int val;
+        if(properties.find(key) == properties.end()) {
+            val = defaultVal;
+        }
+        else {
+            val = atoi((char*)properties[key]);
+        }
 		std::cout << key << ": " << val << "\n";
-		if (val == NULL)
-			return defaultVal;
-		return atoi((char*) val);
+        return val;
 	}
 
 	const char* getString(const char* key) {

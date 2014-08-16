@@ -235,7 +235,8 @@ vector<thread> threadPool;
 
 inline void spawnRequest(int clientSock) {
 	if (threadPool.size() > 0) {
-		thread t = threadPool.pop_back();
+		thread t; /* = threadPool.back();
+        threadPool.pop_back();*/
 		t = thread(accept_request, clientSock);
 		logger.message(Logger::INFO, Logger::STARTED_THREAD);
 	} else {
@@ -259,6 +260,7 @@ int main() {
 
 	int clientSock = 0;
 	while (clientSock >= 0) {
+        cout << "Entered infinite loop\n";
 		logger.message(Logger::INFO, Logger::ABOUT_TO_ACCEPT);
 		clientSock = accept(serverSock, (struct sockaddr *) &client_name,
 				&client_name_len);
