@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <ctype.h>
+#include <iostream>
 
 char * RequestHandler::getNextToken(int &cursor, char * data, int &dataSize,
 		const int socketId, int &tokenLength) {
@@ -48,6 +49,7 @@ RequestHandler::RequestHandler(const int socketId) {
 	int currentTokenLength = 0;
 	int cursor = 0;
 	dataSize = recv(socketId, data, BUFFER_SIZE, 0);
+	std::cout<<"Request:\n"<<data<<std::endl;
 	char * currentToken = getNextToken(cursor, data, dataSize, socketId,
 			currentTokenLength);
 	if (strcmp(currentToken, "POST") == 0) {

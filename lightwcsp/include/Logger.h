@@ -11,10 +11,11 @@
 #include <vector>
 #include <cstdio>
 #include <stdlib.h>
+#include <iostream>
 
 class Logger {
 private:
-	unsigned char debugLevel; // the higher it is, the more messages displayed
+	int debugLevel; // the higher it is, the more messages displayed
 	std::vector<std::string> messages;
 	FILE* fp; // I hate old style C files, but fprintf is really convenient.
 	// we can do better later.
@@ -58,6 +59,8 @@ public:
 	};
 
 	Logger();
+
+	Logger(int level);
 
 	void loadConfig();
 
