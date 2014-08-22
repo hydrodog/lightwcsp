@@ -61,26 +61,26 @@ inline void *get_in_addr(struct sockaddr *sa) {
 void unimplemented(int client) {
 	char buf[BUFF_SIZE];
 	snprintf(buf, BUFF_SIZE,
-       "HTTP/1.1 501 Method Not Implemented\r\n%sContent-Type:\
-       text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
-       </HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n",
-       SERVER_STRING);
+		"HTTP/1.1 501 Method Not Implemented\r\n%sContent-Type:\
+		text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
+		</HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n",
+		SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
 
 void not_found(int client) {
 	char buf[BUFF_SIZE];
 	snprintf(buf, BUFF_SIZE,
-       "HTTP/1.1 404 NOT FOUND\r\n%sContent-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
-       <BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\n \
-       is unavailable or nonexistent.\r\n</BODY></HTML>\r\n",
-       SERVER_STRING);
+		"HTTP/1.1 404 NOT FOUND\r\n%sContent-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
+		<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\n \
+		is unavailable or nonexistent.\r\n</BODY></HTML>\r\n",
+		SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
 
 void sendStandardMessage(int client, int messageType) {
 	send(client, config.getStandardMessage(messageType).c_str(),
-       config.getStandardMessage(messageType).length(), 0);
+		config.getStandardMessage(messageType).length(), 0);
 }
 
 void serve_file(int client, const char *filename, int fileSize) {
@@ -103,8 +103,8 @@ void headers(int client, const char filename[], int fileSize) {
 	//(void) filename; /* could use filename to determine file type */
 
 	snprintf(buf, BUFF_SIZE,
-       "HTTP/1.1 200 OK\r\n%sContent-Type: text/html\r\nContent-Length: %d\r\n\r\n",
-       SERVER_STRING,fileSize);
+		"HTTP/1.1 200 OK\r\n%sContent-Type: text/html\r\nContent-Length: %d\r\n\r\n",
+		SERVER_STRING,fileSize);
 	logger.message(Logger::DETAILS, Logger::SERVER_OK);
 	cout << buf << "\n";
 	send(client, buf, strlen(buf), 0);
@@ -139,30 +139,28 @@ int startup(u_short &port) {
 
 	// loop through all the results and bind to the first we can
 	for (p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol))
-            == -1) {
+		cout<<p<<endl;
+		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol))	== -1) {
 			//TODO: We could log different error messages here, like port busy for example
 			logger.message(Logger::ERROR, Logger::CANNOT_OPEN_SOCKET);
-       continue;
-   }
+			continue;
+		}
+		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+		logger.fatal(Logger::SETSOCKOPT);
+		}
 
-   if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))
-    == -1) {
-       logger.fatal(Logger::SETSOCKOPT);
-}
+		if (::bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+			close(sockfd);
+			logger.message(Logger::ERROR, Logger::BIND);
+			continue;
+		}
 
-if (::bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-   close(sockfd);
-   logger.message(Logger::ERROR, Logger::BIND);
-   continue;
-}
+		break;
+	}
 
-break;
-}
-
-if (p == NULL) {
-  logger.fatal(Logger::FAILED_TO_BIND);
-}
+	if (p == NULL) {
+		logger.fatal(Logger::FAILED_TO_BIND);
+	}
 
 	freeaddrinfo(servinfo); // all done with this structure
 
@@ -190,24 +188,24 @@ void accept_request(int client) {
 	int urlPos = 0;
 	cout << "URL is: " << url << "\n";
 	switch (myReq.getMethod()) {
-     case GET:
-     while (url[urlPos] != 0 && url[urlPos] != '?')
-       urlPos++;
+		case GET:
+		while (url[urlPos] != 0 && url[urlPos] != '?')
+			urlPos++;
 		url[urlPos] = 0; //We are temporarily discarding fields. TODO FIX
 		break;
-     case POST:
-     cgi = 1;
-     break;
-     default:
-     break;
- }
- char path[4200];
- if (url[0] == '/') {
-  snprintf(path, 4200, "htdocs%s", url);
-}
-if (path[strlen(path) - 1] == '/') {
-  strcat(path, "index.html");
-}
+		case POST:
+		cgi = 1;
+		break;
+		default:
+		break;
+	}
+	char path[4200];
+	if (url[0] == '/') {
+		snprintf(path, 4200, "htdocs%s", url);
+	}
+	if (path[strlen(path) - 1] == '/') {
+		strcat(path, "index.html");
+	}
 //while (recv(client, buf, BUFF_SIZE - 1, 0))
   //;
 	struct stat st; // = nullptr;
@@ -242,30 +240,30 @@ int main() {
 	serverSock = startup(port);
 	logger.message(Logger::DETAILS, Logger::RUNNING, port);
 	thread* threadPool = new thread[threadPoolSize];
-    int nextThread = 0;
-    int clientSock = 0;
+	int nextThread = 0;
+	int clientSock = 0;
 
-    while (clientSock >= 0) {
-        clientSock = accept(serverSock, (struct sockaddr *) &client_name,
-        &client_name_len);
-        cout << "accepted socket on main thread: " << clientSock << "\n";
-        if (clientSock >= 0) {
+	while (clientSock >= 0) {
+		clientSock = accept(serverSock, (struct sockaddr *) &client_name,
+			&client_name_len);
+		cout << "accepted socket on main thread: " << clientSock << "\n";
+		if (clientSock >= 0) {
 			/* accept_request(clientSock); */
-           cout << "Starting new thread\n";
-           while(threadPool[nextThread].joinable()){
-            nextThread++;
-        }
-        threadPool[nextThread++] = thread(accept_request, clientSock);
-        cout << "New thread started\n";
-        if (nextThread == 100)
-            nextThread = 0;
-        } 
-        else {
-            logger.message(Logger::DETAILS, Logger::ENDED_THREAD);
-            exit(1);
-        }
-}
+			cout << "Starting new thread\n";
+			while(threadPool[nextThread].joinable()){
+				nextThread++;
+			}
+			threadPool[nextThread++] = thread(accept_request, clientSock);
+			cout << "New thread started\n";
+			if (nextThread == 100)
+				nextThread = 0;
+		} 
+		else {
+			logger.message(Logger::DETAILS, Logger::ENDED_THREAD);
+			exit(1);
+		}
+	}
 
-close(serverSock);
-return 0;
+	close(serverSock);
+	return 0;
 }

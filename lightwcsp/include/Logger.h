@@ -77,6 +77,7 @@ public:
 			fprintf(fp, messages[MSGCODE].c_str(), param1, param2);
 	}
 	void fatal(int MSGCODE) {
+		
 		fprintf(fp, messages[MSGCODE].c_str());
 		exit(1); // use throw instead?
 	}
