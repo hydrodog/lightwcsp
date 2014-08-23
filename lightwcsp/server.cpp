@@ -183,6 +183,7 @@ void accept_request(int client) {
 	 * program */
 
 	RequestHandler myReq(client);
+	myReq.printProperties();
 	char url[MAX_URL_SIZE];
 	strncpy(url, myReq.getUrl(), myReq.getUrlLength() + 1);
 	int urlPos = 0;

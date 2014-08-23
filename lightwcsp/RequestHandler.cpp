@@ -15,57 +15,106 @@
 #include <ctype.h>
 #include <iostream>
 
-char * RequestHandler::getNextToken(int &cursor, char * data, int &dataSize,
-		const int socketId, int &tokenLength) {
-	int size = 100;
-	int length = 0;
-	char * result = new char[size + 2];
-	while (isspace(data[cursor])) {
-		cursor++;
-	}
-	while (!isspace(data[cursor])) {
-		if (length > size) {
-			size = length << 1;
-			char * tmp = new char[size + 2];
-			memcpy(tmp, result, length);
-			result = tmp;
-		}
-		result[length] = data[cursor];
-		cursor++;
-		length++;
-		if (cursor == dataSize) {
-			dataSize = recv(socketId, data, BUFFER_SIZE, 0);
-			cursor = 0;
-		}
-	}
-	result[length] = 0;
-	tokenLength = length;
-	return result;
-}
+ char * RequestHandler::getNextToken(int &cursor, char * data, int &dataSize,
+ 	const int socketId, int &tokenLength) {
+ 	int size = 100;
+ 	int length = 0;
+ 	char * result = new char[size + 2];
+ 	while (isspace(data[cursor])) {
+ 		cursor++;
+ 	}
+ 	while (!isspace(data[cursor])) {
+ 		if (length > size) {
+ 			size = length << 1;
+ 			char * tmp = new char[size + 2];
+ 			memcpy(tmp, result, length);
+ 			result = tmp;
+ 		}
+ 		result[length] = data[cursor];
+ 		cursor++;
+ 		length++;
+ 		if (cursor == dataSize) {
+ 			dataSize = recv(socketId, data, BUFFER_SIZE, 0);
+ 			cursor = 0;
+ 		}
+ 	}
+ 	result[length] = 0;
+ 	tokenLength = length;
+ 	return result;
+ }
 
-RequestHandler::RequestHandler(const int socketId) {
-	char data[BUFFER_SIZE];
-	int dataSize = 0;
-	int currentTokenLength = 0;
-	int cursor = 0;
-	dataSize = recv(socketId, data, BUFFER_SIZE, 0);
-	std::cout<<"Request:\n"<<data<<std::endl;
-	char * currentToken = getNextToken(cursor, data, dataSize, socketId,
-			currentTokenLength);
-	if (strcmp(currentToken, "POST") == 0) {
-		method = POST;
-	} else if (strcmp(currentToken, "GET") == 0) {
-		method = GET;
-	} else {
-		method = UNIMPLEMENTED;
-	}
-	url = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
-	urlLength = currentTokenLength;
-	httpVersion = getNextToken(cursor, data, dataSize, socketId,
-			currentTokenLength);
-	getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
-	host = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
-	body = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
-	bodySize = sizeof(body);
-	bodyLength = currentTokenLength;
+ char * RequestHandler::getNextHeader(int &cursor, char * data, int &dataSize,
+ 	const int socketId, int &tokenLength) {
+ 	int size = 100;
+ 	int length = 0;
+ 	char * result = new char[size + 2];
+ 	while (isspace(data[cursor])) {
+ 		cursor++;
+ 	}
+ 	while (data[cursor]!='\n') {
+ 		if (length > size) {
+ 			size = length << 1;
+ 			char * tmp = new char[size + 2];
+ 			memcpy(tmp, result, length);
+ 			result = tmp;
+ 		}
+ 		result[length] = data[cursor];
+ 		cursor++;
+ 		length++;
+ 		if (cursor == dataSize) {
+ 			dataSize = recv(socketId, data, BUFFER_SIZE, 0);
+ 			cursor = 0;
+ 		}
+ 	}
+ 	result[length] = 0;
+ 	tokenLength = length;
+ 	return result;
+ }
+
+ RequestHandler::RequestHandler(const int socketId) {
+ 	char data[BUFFER_SIZE];
+ 	int dataSize = 0;
+ 	int currentTokenLength = 0;
+ 	int cursor = 0;
+ 	dataSize = recv(socketId, data, BUFFER_SIZE, 0);
+ 	if (dataSize == 0) {
+ 		url = {0};
+ 		urlLength=0;
+ 		httpVersion = {0};
+ 		host={0};
+ 	}
+ 	else {
+ 		std::cout<<"Request:\n"<<data<<std::endl;
+ 		char * currentToken = getNextToken(cursor, data, dataSize, socketId,
+ 			currentTokenLength);
+ 		if (strcmp(currentToken, "POST") == 0) {
+ 			method = POST;
+ 		} else if (strcmp(currentToken, "GET") == 0) {
+ 			method = GET;
+ 		} else {
+ 			method = UNIMPLEMENTED;
+ 		}
+ 		url = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
+ 		urlLength = currentTokenLength;
+ 		httpVersion = getNextToken(cursor, data, dataSize, socketId,
+ 			currentTokenLength);
+ 		getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
+ 		host = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
+ 		while (data[cursor+2] != '\n') {
+ 			properties.insert ( std::pair<const char*, char*>(
+ 				getNextToken(cursor, data, dataSize, socketId, currentTokenLength),
+ 				getNextHeader(cursor, data, dataSize, socketId, currentTokenLength)));
+ 		}
+ 		body = getNextToken(cursor, data, dataSize, socketId, currentTokenLength);
+ 		bodySize = sizeof(body);
+ 		bodyLength = currentTokenLength;
+ 	}
+ }
+
+ void RequestHandler::printProperties () {
+ 	std::map<const char*,char*>::iterator it = properties.begin();
+ 	
+ 	std::cout << "\nProperties:\n";
+ 	for (it=properties.begin(); it!=properties.end(); ++it)
+  		std::cout << it->first << " => " << it->second << '\n';
 }

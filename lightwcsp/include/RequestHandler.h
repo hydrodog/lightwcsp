@@ -8,12 +8,15 @@
 #ifndef REQUESTHANDLER_H_
 #define REQUESTHANDLER_H_
 
+ #include <map>
+
 enum httpMethod {
 	GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, UNIMPLEMENTED
 };
 
 class RequestHandler {
 private:
+	std::map<const char*, char*> properties;
 	const int BUFFER_SIZE = 1024;
 	int bodySize;
 	int bodyLength;
@@ -24,6 +27,8 @@ private:
 	char * host;
 	char * body;
 	char * getNextToken(int &cursor, char * data, int &dataSize,
+			const int socketId, int &tokenLength);
+	char * getNextHeader(int &cursor, char * data, int &dataSize,
 			const int socketId, int &tokenLength);
 public:
 	RequestHandler(int socketId);
@@ -48,6 +53,7 @@ public:
 	inline const httpMethod getMethod() const {
 		return method;
 	}
+	void printProperties();
 };
 
 #endif /* REQUESTHANDLER_H_ */
