@@ -54,6 +54,20 @@ public:
 		return method;
 	}
 	void printProperties();
+
+	inline bool hasProperty(const char* property) {
+		return (properties.find(property)!=properties.end());
+	}
+
+	inline char* getProperty (const char* property) {
+		std::map<const char*, char*>::iterator it = properties.find(property);
+		if(it!=properties.end()) {
+			return it->second;
+		}
+		else {
+			return nullptr;
+		}
+	}
 };
 
 #endif /* REQUESTHANDLER_H_ */

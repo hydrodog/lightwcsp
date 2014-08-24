@@ -63,7 +63,7 @@ void unimplemented(int client) {
 	snprintf(buf, BUFF_SIZE,
 		"HTTP/1.1 501 Method Not Implemented\r\n%sContent-Type:\
 		text/html\r\n\r\n<HTML><HEAD><TITLE>Method Not Implemented\r\n</TITLE>\
-		</HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n",
+		</HEAD>\r\n<BODY><P>HTTP request method not supported.\r\n</BODY></HTML>\r\n\r\n",
 		SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
@@ -73,7 +73,7 @@ void not_found(int client) {
 	snprintf(buf, BUFF_SIZE,
 		"HTTP/1.1 404 NOT FOUND\r\n%sContent-Type: text/html\r\n\r\n<HTML><TITLE>Not Found</TITLE>\r\n\
 		<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\n \
-		is unavailable or nonexistent.\r\n</BODY></HTML>\r\n",
+		is unavailable or nonexistent.\r\n</BODY></HTML>\r\n\r\n",
 		SERVER_STRING);
 	send(client, buf, strlen(buf), 0);
 }
@@ -183,7 +183,7 @@ void accept_request(int client) {
 	 * program */
 
 	RequestHandler myReq(client);
-	myReq.printProperties();
+	//myReq.printProperties();
 	char url[MAX_URL_SIZE];
 	strncpy(url, myReq.getUrl(), myReq.getUrlLength() + 1);
 	int urlPos = 0;
@@ -247,17 +247,20 @@ int main() {
 	while (clientSock >= 0) {
 		clientSock = accept(serverSock, (struct sockaddr *) &client_name,
 			&client_name_len);
-		cout << "accepted socket on main thread: " << clientSock << "\n";
+		cout << "accepted new socket. Socket number: " << clientSock << "\n";
 		if (clientSock >= 0) {
 			/* accept_request(clientSock); */
 			cout << "Starting new thread\n";
 			while(threadPool[nextThread].joinable()){
 				nextThread++;
+				if (nextThread == threadPoolSize) {
+					nextThread = 0;
+				}				
+				
 			}
-			threadPool[nextThread++] = thread(accept_request, clientSock);
-			cout << "New thread started\n";
-			if (nextThread == 100)
-				nextThread = 0;
+			threadPool[nextThread] = thread(accept_request, clientSock);
+			cout << "New thread started: ThreadPoolNumber = " << nextThread << "\n";
+			
 		} 
 		else {
 			logger.message(Logger::DETAILS, Logger::ENDED_THREAD);
