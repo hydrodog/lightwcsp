@@ -1,0 +1,7 @@
+The Lightweight C++ Server Pages project is an ultra-high performance web serverwritten in C++. It is very limited at the moment, but very fast.
+
+We are adding an integrated security mechanism that will quickly handle the following requests
+
+1. Simple page requests.  These are serviced without checking
+2. Secure page requests.  These are services after checking whether this user is allowed acces.
+3. Dynamic pages through JSP-like implementation in C++.
