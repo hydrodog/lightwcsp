@@ -1,10 +1,10 @@
 CPP = g++ -std=c++11
-OBJ = Config.o Logger.o MyStringBuffer.o RequestHandler.o FileSys.o server.o
+OBJ = Config.o Logger.o MyStringBuffer.o RequestHandler.o FileSys.o server.o CspServlet.o
 OPT = #-O3
 DEBUG = -g
 INCLUDE = -I include/
 
-server: Config.o Logger.o MystringBuffer.o RequestHandler.o FileSys.o server.o
+server: Config.o Logger.o MystringBuffer.o RequestHandler.o FileSys.o server.o CspServlet.o
 	$(CPP) $(OPT) $(DEBUG) $(OBJ) -o server
 
 Config.o: Config.cc
@@ -21,6 +21,9 @@ MystringBuffer.o: MystringBuffer.cc
 
 RequestHandler.o: RequestHandler.cc
 	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c RequestHandler.cc
+	
+CspServlet.o: CspServlet.cc
+	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c CspServlet.cc
 
 server.o: server.cc
 	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c server.cc

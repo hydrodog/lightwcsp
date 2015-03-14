@@ -76,6 +76,7 @@ void FileSys::dfs(string filedir){
 			FL* fl = new FL();
 			fl->filedir = filedir + "/" + entry->d_name;
 			fl->filename = entry->d_name;
+			fl->filetype = fl->filename.substr(fl->filename.find_last_of(".")+1);
 			FILE* inputf = fopen(fl->filename.c_str(), "rb");
 			if (inputf == nullptr) cout << "cannot open " << entry->d_name;
 			else{
@@ -105,14 +106,17 @@ void FileSys::dfs(string filedir){
 FileSys::~FileSys(){
 
 }
-void FileSys::encryption(){}
-void FileSys::decryption(){}
+
 FL* FileSys::access(string filename){
 	return filemap[filename];
 }
 
 char* FileSys::get_buf(FL* f){
 	return f->buf;
+}
+
+string FileSys::get_type(FL* f){
+	return f->filetype;
 }
 
 long int FileSys::get_filelen(FL* f){
@@ -123,6 +127,7 @@ void FileSys::print(){
 	for (auto i = filemap.begin(); i != filemap.end(); i++){
 		cout << "hashkey: "<< i->first<<endl;
 		cout <<"filedir: "<<i->second->filedir<<endl;
+		cout <<"filetype"<<i->second->filetype<<endl;
 		cout <<"filename: "<<i->second->filename<<endl;
 	//	cout << i->second->buf << endl;
 	}

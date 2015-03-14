@@ -10,8 +10,8 @@
 #define SERVER_H_
 
 #include <stdio.h> // Need for FILE
-
-void accept_request(int client);
+#include <FileSys.h>
+void accept_request(int client,FileSys* fs);
 void not_found(int client);
 void serve_file(int client, const char *filename);
 int startup(u_short *port);

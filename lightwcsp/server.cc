@@ -10,7 +10,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-
+#include <CspServlet.h>
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -111,9 +111,18 @@ void accept_request(int client,FileSys* fs) {
 				cout<<"not find key "<<path<<endl;
 			}
 			else{
+				if (fl->filetype == "csp"){
+					HttpServlet temp;
+					string res = temp.dispatcher(fl->filename);
+					headers(client,path);
+					send(client, res.c_str(), res.length(), 0);
+					send(client, "\r\n", 2, 0);
+				}
+				else{
 				headers(client,path);
 				send(client, fs->get_buf(fl), fs->get_filelen(fl), 0);
 				send(client, "\r\n", 2, 0);
+				}
 			}
 		}
 		//        else
