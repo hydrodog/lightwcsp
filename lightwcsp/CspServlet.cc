@@ -1,20 +1,22 @@
-#include "CspServlet.h"
+#include "CspServlet.hh"
 #include <iostream>
 #include <string>
 using namespace std;
 
+unordered_map<string, HttpServlet*> HttpServlet::servlets;
 
-// string HttpRequest::get_name(){
-	// return name;
-// }
-HttpServlet ::HttpServlet(){
-		HttpServlet::servlets["aa.csp"] = new AA();
-		HttpServlet::servlets["bb.csp"] = new BB();
-		HttpServlet::servlets["cc.csp"] = new CC();
+void HttpServlet::init(){
+	HttpServlet::servlets["aa.csp"] = new AA();
+	HttpServlet::servlets["bb.csp"] = new BB();
+	HttpServlet::servlets["cc.csp"] = new CC();
+	HttpServlet::servlets["100.csp"] = new test100();
+	HttpServlet::servlets["1k.csp"] = new test1k();
+	HttpServlet::servlets["10k.csp"] = new test10k();
+	HttpServlet::servlets["100k.csp"] = new test100k();
+	HttpServlet::servlets["1m.csp"] = new test1m();
 }
 
-string HttpServlet::dispatcher(string fileName) { // Something.csp
-	//HttpRequest req(fileName); // initialize this object to contain:
+//HttpRequest req(fileName); // initialize this object to contain:
 	/*
 		maintain session id
 		setContentType("text/plain");
@@ -24,57 +26,99 @@ string HttpServlet::dispatcher(string fileName) { // Something.csp
 		invalidate session when it times out
 
 	 */
-	unordered_map<string,HttpServlet*>::const_iterator got = HttpServlet::servlets.find(fileName);
-	if (got == HttpServlet::servlets.end())
-		return nullptr;
-	else
-		return HttpServlet::servlets[fileName]->doGet();
-}
-
-string HttpServlet::doGet(){
-	cout<<"In HttpServlet.doGet function"<<endl;
-	return "";
-}
 
 
-string AA::doGet() {
+void AA::doGet(HttpRequest& req) {
 	// print out somethign to client
 	//ClientStream& s = req.getClientStream();
-	string s; 
-	s += "<html>\n<body>\n";
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
 	for (int i = 0; i < 100; i++) {
-		s += i;
-		s += "\n";
+		b.append(i);
+		b.append("\n");
 		}
-	s += "</body>\n</html>\n";
-	return s;
+	b.append("</body>\n</html>\n");
 };
 
-
-string BB::doGet() {
+void test100::doGet(HttpRequest& req) {
 	// print out somethign to client
 	//ClientStream& s = req.getClientStream();
-	string s; 
-	s += "<html>\n<body>\n";
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
 	for (int i = 0; i < 100; i++) {
-		s += i*i;
-		s += "\n";
+		b.append(1);
+		//b.append("\n");
 		}
-	s += "</body>\n</html>\n";
-	return s;
+	b.append("</body>\n</html>\n");
+};
+void test1k::doGet(HttpRequest& req) {
+	// print out somethign to client
+	//ClientStream& s = req.getClientStream();
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
+	for (int i = 0; i < 1000; i++) {
+		b.append(1);
+		//b.append("\n");
+		}
+	b.append("</body>\n</html>\n");
+};
+void test10k::doGet(HttpRequest& req) {
+	// print out somethign to client
+	//ClientStream& s = req.getClientStream();
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
+	for (int i = 0; i < 10000; i++) {
+		b.append(1);
+		//b.append("\n");
+		}
+	b.append("</body>\n</html>\n");
 };
 
-string CC::doGet() {
+void test100k::doGet(HttpRequest& req) {
 	// print out somethign to client
 	//ClientStream& s = req.getClientStream();
-	string s; 
-	s += "<html>\n<body>\n";
-	for (int i = 0; i < 100; i++) {
-		s += i+i;
-		s += "\n";
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
+	for (int i = 0; i < 100000; i++) {
+		b.append(1);
+		//b.append("\n");
 		}
-	s += "</body>\n</html>\n";
-	return s;
+	b.append("</body>\n</html>\n");
+};
+
+void test1m::doGet(HttpRequest& req) {
+	// print out somethign to client
+	//ClientStream& s = req.getClientStream();
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
+	for (int i = 0; i < 1000000; i++) {
+		b.append(1);
+		//b.append("\n");
+		}
+	b.append("</body>\n</html>\n");
+};
+void BB::doGet(HttpRequest& req) {
+	// print out somethign to client
+	//ClientStream& s = req.getClientStream();
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
+	for (int i = 0; i < 100; i++) {
+		b.append(i*i);
+		//b.append("\n");
+		}
+	b.append("</body>\n</html>\n");
+};
+
+void CC::doGet(HttpRequest& req) {
+	// print out somethign to client
+	//ClientStream& s = req.getClientStream();
+	Buffer& b = req.getOutput();
+	b.append("<html>\n<body>\n");
+	for (int i = 0; i < 100; i++) {
+		b.append(i+i);
+		b.append("\n");
+		}
+	b.append("</body>\n</html>\n");
 };
 /*
 A.csp

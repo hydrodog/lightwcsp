@@ -7,128 +7,90 @@
 // time mea load -> server -> shut down  
 // one branch decide 1 access 2 what file type 3 JSP 
 // encryption in file. 
-#define BASE "htdocs"
-
 
 #include <fcntl.h>             // 提供open()函数  
 #include <unistd.h>  
 #include <stdio.h>  
-#include <dirent.h>            // 提供目录流操作函数  
 #include <string.h>  
 #include <sys/stat.h>        // 提供属性操作函数  
 #include <sys/types.h>         // 提供mode_t 类型  
 #include <stdlib.h> 
 #include <iostream>
 #include <unordered_map>
-#include <FileSys.h>
+#include <FileSys.hh>
+#include <server.hh>
+#include <CspServlet.hh>
+#define debug
 using namespace std;
-/* struct FL{
-	string accessInfo;
-	string filedir;
-	string filename;
-	string filetype;
-	long int filelen;
-	char* buf;
-};
 
-class FileSys{
-private:
-	unordered_map<string, FL*>filemap;
-	void dfs(string filedir);
-public:
-	FileSys();
-	void update();
-	~FileSys();
-	void encryption();
-	void decryption();
-	FL* access(string);
-	char* get_buf(FL*);
-	long int get_filelen(FL*);
-	void print();
-}; */
-
-
-FileSys::FileSys(){
-	dfs(BASE);
+std::unordered_map<std::string,std::string> mimeType;
+void FileSys::initMimeTypes() {
+  mimeType["html"] = "text/html";
+  mimeType["txt"] = "text/plain";
+  mimeType["xls"] = "application/vnd.ms-excel";
+  mimeType["xlsx"] = "application/vnd.ms-excel";
+  mimeType["zip"] = "application/x-gzip";
 }
 
+/**
+ * Recursively descend through file system loading each file
+ * FileSys caches each file with its header. Short files can be sent out
+ * with a single send call.
+ */
 void FileSys::dfs(string filedir){
-	DIR *dp;
-	struct dirent *entry;
-	struct stat statbuf;
-	if((dp = opendir(filedir.c_str())) == NULL) {
-        fprintf(stderr,"cannot open directory: %s\n", filedir.c_str());
-        return;
-    }
-	chdir(filedir.c_str());
-	while((entry=readdir(dp))!=nullptr){
-		lstat(entry->d_name,&statbuf);
-		if (S_IFDIR& statbuf.st_mode){
-			if (strcmp(entry->d_name, ".") != 0 && (strcmp(entry->d_name, "..") != 0)){
-				string newp = filedir + "/" + entry->d_name;
-				chdir(BASE);
-				chdir("..");
-				dfs(newp);
-			}
+  DIR *dp;
+  struct stat statbuf;
+  struct dirent *entry;
+  if((dp = opendir(filedir.c_str())) == nullptr) {
+    cerr << "cannot open directory: " << filedir.c_str() << '\n';
+    return;
+  }
+  chdir(filedir.c_str());
+  while((entry = readdir(dp)) != nullptr){
+    lstat(entry->d_name,&statbuf);
+	//cout << entry->d_name << endl;
+    if (S_IFDIR & statbuf.st_mode){
+      if (strcmp(entry->d_name, ".") != 0 && (strcmp(entry->d_name, "..") != 0)){
+	     chdir("htdocs");	
+	     chdir("..");	
+ 	     dfs(filedir + "/" + entry->d_name);
+      }
+    } else {
+			// IF .txt file then new InMemoryFileServlet(entry)
+			// if .html file new InMemoryFileServlet(entry);
+			// if .csp file new CspCompileServlet(entry);
+			// if aa.csp ->  new AA();
+			// if bb.csp -> new BB();
+			
+			string temp = filedir;
+			temp+="/";
+			temp+=entry->d_name;
+			HttpServlet* s = new InMemoryFileServlet(entry);
+			filemap.insert({ temp, s });
+			//this->print();
 		}
-		else{
-			//cout << filedir << "\\" << entry->d_name << " ";
-			FL* fl = new FL();
-			fl->filedir = filedir + "/" + entry->d_name;
-			fl->filename = entry->d_name;
-			fl->filetype = fl->filename.substr(fl->filename.find_last_of(".")+1);
-			FILE* inputf = fopen(fl->filename.c_str(), "rb");
-			if (inputf == nullptr) cout << "cannot open " << entry->d_name;
-			else{
-				fseek(inputf, 0, SEEK_END);
-				fl->filelen = ftell(inputf);
-				rewind(inputf);
-				fl->buf = (char*)malloc(sizeof(char)* fl->filelen);
-				if (fl->buf==nullptr){
-					cout<<"Memory error"<<endl;
-					exit(2);
-				}
-				int l=fread(fl->buf, fl->filelen, 1, inputf);
-				// if (l!= fl->filelen){
-					// cout<<"Reading error"<<endl;
-					// exit(3);
-				// }
-				fclose(inputf);
-				
-				filemap.insert({ fl->filedir, fl });
-			}
-		}
-	} 
-	chdir("..");
-	closedir(dp);
+  } 
+  if (chdir("..") != 0) {
+    cerr << "chdir .. failed\n";
+  }
+  closedir(dp);
 }
 
 FileSys::~FileSys(){
-
+  for (unordered_map<string, HttpServlet*>::iterator i = filemap.begin();
+       i != filemap.end(); ++i) {
+    delete [] i->second;
+  }
 }
 
-FL* FileSys::access(string filename){
-	return filemap[filename];
-}
+void FileSys::print() {
 
-char* FileSys::get_buf(FL* f){
-	return f->buf;
-}
-
-string FileSys::get_type(FL* f){
-	return f->filetype;
-}
-
-long int FileSys::get_filelen(FL* f){
-	return f->filelen;
-}
-
-void FileSys::print(){
-	for (auto i = filemap.begin(); i != filemap.end(); i++){
-		cout << "hashkey: "<< i->first<<endl;
-		cout <<"filedir: "<<i->second->filedir<<endl;
-		cout <<"filetype"<<i->second->filetype<<endl;
-		cout <<"filename: "<<i->second->filename<<endl;
-	//	cout << i->second->buf << endl;
-	}
+#ifdef debug
+  cerr<< "print:\n"<<endl;
+  for (auto i = filemap.begin(); i != filemap.end(); i++){
+    cerr << "hashkey:  "<< i->first << '\n';
+    cout << "filedir:  "<< i->second  << '\n';
+    //	cout << i->second->buf << endl;
+  }
+#endif
 }
