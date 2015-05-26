@@ -29,6 +29,11 @@ void error_die(const char *s)
 
 int main(int argc,char *argv[])
 {
+	if(argc < 2)
+	{
+		cout << "IP address is missing" << endl;
+		return 0;
+	}
 	int sockfd;
 	struct addrinfo hints, *result, *p;
 	char buff[BUFFSIZE];
@@ -39,7 +44,7 @@ int main(int argc,char *argv[])
 	hints.ai_flags = 0;
 	hints.ai_protocol = 0;
 
-	if(getaddrinfo("155.246.219.49",PORT,&hints,&result))
+	if(getaddrinfo(argv[1],PORT,&hints,&result))
 		error_die("getaddrinfo");
 
 	for(p = result; p; p = p->ai_next)
