@@ -75,7 +75,18 @@ int main(int argc,char *argv[])
 	if(read(sockfd,buff,BUFFSIZE - 1) < 0)
 		error_die("Error reading from socket");
 
-	cout << buff << endl;
+	float v[9];
+	sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
+
+	cout << '$' << v[0] << endl;
+	cout << '$' << v[1] << endl;
+	cout << '$' << v[2] << endl;
+	cout << '$' << v[3] << endl;
+	cout << '$' << v[4] << endl;
+	cout << '$' << v[5] << endl;
+	cout << '$' << v[6] << endl;
+	cout << '$' << v[7] << endl;
+	cout << '$' << v[8] << endl;
 
 	close(sockfd);
 
