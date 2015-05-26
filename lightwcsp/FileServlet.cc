@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <string>
 #include <stdio.h>
-#include <stdlib.h>
 using namespace std;
 
 FileServlet::FileServlet(struct dirent* entry) {
@@ -31,9 +30,9 @@ void FileServlet::doGet(HttpRequest& req) {
     }
   }
 	// preload the header information into the buffer
-	char* buf2 =headers(buf, mimetype);
+	char* buf2 = headers(buf, mimetype);
 	// load file into the buffer
 	int bytesRead = fread(buf2, filelen, 1, inputf);
 	fclose(inputf);
-	req.sendbuf(buf, buflen);
+	req.send(buf, buflen);
 }

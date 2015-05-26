@@ -8,18 +8,16 @@
 #include <unistd.h>
 
 class HttpServlet;
-
 extern std::unordered_map<std::string,std::string> mimeType;
+
 class FileSys {
 private:
   std::unordered_map<std::string, HttpServlet*>filemap;
   void dfs(std::string filedir);
 public:
   FileSys(const std::string& filedir) {
-	initMimeTypes();
     dfs(filedir);
   }
-  void initMimeTypes();
   void update();
   ~FileSys();
   void encryption();

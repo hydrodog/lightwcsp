@@ -18,6 +18,7 @@
 #include <thread>
 #include <server.hh>
 #include <FileSys.hh>
+#include "Signal.hh"
 
 #define SERVER_STRING "Server: lwc/1\r\n"
 #define PORT "4040"  // the port users will be connecting to
@@ -154,20 +155,23 @@ void unimplemented(int client) {
 	send(client, buf, strlen(buf), 0);
 }
 
+
 int main(int argc, char* argv[]) {
+	setupSignal();
   int serverSock = -1;
   u_short port = 0;
   int clientSock = 0;
   struct sockaddr_in clientName;
   socklen_t clientNameLen = sizeof(clientName);
   thread threadPool[THREAD_POOL_SIZE];
+  
   serverSock = startup(&port);
   cerr << "lwcsp running on port " << port << '\n';
   int nextThread = 0;
 
   //  FileSys FS;   // pre-read all files for speed
 	              //    (Traverse all files under htdocs)
-  HttpServlet::init(); // initialize Servlet dispatch
+  //  HttpServlet::init(); // initialize Servlet dispatch
   while (clientSock >= 0) {
     clientSock = accept(serverSock, (struct sockaddr *) &clientName,
 			 &clientNameLen);

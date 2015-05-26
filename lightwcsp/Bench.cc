@@ -1,4 +1,4 @@
-#include "Bench.h"
+#include "Bench.hh"
 #include <unistd.h>
 using namespace std;
 

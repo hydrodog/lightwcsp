@@ -14,7 +14,7 @@
 #include <Buffer.hh>
 #include <FileSys.hh>
 #include <sys/socket.h>
-#include <server.hh>
+
 enum httpMethod {
 	GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, UNIMPLEMENTED
 };
@@ -39,7 +39,11 @@ private:
   const char * host;
   const char * body;
   bool isBlank(const char currentChar) const {
-    return (currentChar == '\r'||currentChar == '\n'||currentChar == ' '||currentChar == '\t');
+    return
+      currentChar == '\r' ||
+      currentChar == '\n' ||
+      currentChar == ' '	||
+      currentChar == '\t';
   }
   const char* getNextToken(int &cursor, int &tokenLength);
 public:
@@ -51,11 +55,12 @@ public:
   const char * getHost() const { return host; }
   const char * getUrl() const { return url; }
   const httpMethod getMethod() const { return method; }
-  const char* getParam(const char* msg) const { return nullptr; }
-  Buffer& getOutput(){return b;}
-  void sendbuf(const char* buf, size_t buflen) {
-	send(socketId, buf, buflen, 0);
-	send(socketId, "\r\n", 2, 0);
+	const char* getParam(const char* msg) const { return nullptr; }
+	Buffer& getOutput(){
+		return b;
+	}
+	void send(const char* buf, size_t buflen) {
+		::send(socketId, buf, buflen, 0);
   }
 };
 

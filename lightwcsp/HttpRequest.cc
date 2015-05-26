@@ -15,7 +15,7 @@
 #include <string>
 #include <CspServlet.hh>
 
-//#include <server.hh>
+//#include <server.h>
 using namespace std;
 
 //void *__gxx_personality_v0;
@@ -41,7 +41,8 @@ const char * HttpRequest::getNextToken(int &cursor, int &tokenLength) {
   return data+start;
 }
 
-HttpRequest::HttpRequest(const int socketId,const char baseDir[]) : socketId(socketId),
+HttpRequest::HttpRequest(const int socketId,
+												 const char baseDir[]) : socketId(socketId),
   baseDir(baseDir), baseDirLen(strlen(baseDir)) {
   int currentTokenLength = 0;
   int dataSize = recv(socketId, data, BUFFER_SIZE, 0);
@@ -63,23 +64,18 @@ HttpRequest::HttpRequest(const int socketId,const char baseDir[]) : socketId(soc
   bodySize = sizeof(body);
   bodyLength = currentTokenLength;
 
-  //cout<<"method:"<<method<<" /method;url:"<<url<<"/url;usrlenth"<<urlLength<<"/urllength;host:"<<host<<"/host;body:"<<body<<"/body"<<endl;
-  
-  string temp= "htdocs";
-  if (url[urlLength-1]=='/')
-	temp+= "/index.html";
-  else temp+= string(url, urlLength);
-  HttpServlet* s = FS.access(temp); //TODO: eliminate string
+  HttpServlet* s = FS.access(string(url, urlLength)); //TODO: eliminate string
   
   if (s == nullptr) {
     cerr << "not find key "<< url << endl;
 		return;
   }
+	
 	s->doGet(*this);
 
 }
 #if 0
-	send(socketId, f->getBuf(), f->getFileLen(), 0);
+		send(socketId, f->getBuf(), f->getFileLen(), 0);
     if (f->filetype == "csp"){
       HttpRequest req;
       HttpServlet::dispatcher(fl->filename, req);

@@ -20,11 +20,10 @@
 #include <FileSys.hh>
 #include <server.hh>
 #include <CspServlet.hh>
-#define debug
 using namespace std;
 
-std::unordered_map<std::string,std::string> mimeType;
-void FileSys::initMimeTypes() {
+unordered_map<string,string> mimeType;
+void initMimeTypes() {
   mimeType["html"] = "text/html";
   mimeType["txt"] = "text/plain";
   mimeType["xls"] = "application/vnd.ms-excel";
@@ -40,19 +39,19 @@ void FileSys::initMimeTypes() {
 void FileSys::dfs(string filedir){
   DIR *dp;
   struct stat statbuf;
-  struct dirent *entry;
   if((dp = opendir(filedir.c_str())) == nullptr) {
     cerr << "cannot open directory: " << filedir.c_str() << '\n';
     return;
   }
   chdir(filedir.c_str());
+  struct dirent *entry;
   while((entry = readdir(dp)) != nullptr){
     lstat(entry->d_name,&statbuf);
-	//cout << entry->d_name << endl;
+	cout << entry->d_name << endl;
     if (S_IFDIR & statbuf.st_mode){
       if (strcmp(entry->d_name, ".") != 0 && (strcmp(entry->d_name, "..") != 0)){
-	     chdir("htdocs");	
-	     chdir("..");	
+	     cerr << "result=" << (chdir("htdocs") == 0) << endl;	
+	     cerr << "result=" << (chdir("..") == 0) << endl;	
  	     dfs(filedir + "/" + entry->d_name);
       }
     } else {
@@ -61,13 +60,12 @@ void FileSys::dfs(string filedir){
 			// if .csp file new CspCompileServlet(entry);
 			// if aa.csp ->  new AA();
 			// if bb.csp -> new BB();
-			
-			string temp = filedir;
-			temp+="/";
-			temp+=entry->d_name;
+			filedir += "/";
+			filedir += entry->d_name;
+
 			HttpServlet* s = new InMemoryFileServlet(entry);
-			filemap.insert({ temp, s });
-			//this->print();
+			
+			filemap.insert({ filedir, s });
 		}
   } 
   if (chdir("..") != 0) {
@@ -83,14 +81,14 @@ FileSys::~FileSys(){
   }
 }
 
-void FileSys::print() {
+void FileSys::print() {}
 
-#ifdef debug
-  cerr<< "print:\n"<<endl;
+#if 0
   for (auto i = filemap.begin(); i != filemap.end(); i++){
-    cerr << "hashkey:  "<< i->first << '\n';
-    cout << "filedir:  "<< i->second  << '\n';
+    cout << "hashkey:  "<< i->first << '\n';
+    cout << "filedir:  "<< i->second->filedir  << '\n';
+    cout << "filename: "<< i->second->filename << '\n';
     //	cout << i->second->buf << endl;
   }
-#endif
 }
+#endif

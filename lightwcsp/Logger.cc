@@ -4,7 +4,7 @@
  *  Created on: May 22, 2014
  *      Author: dkruger
  */
-#include "include/Logger.h"
+#include "Logger.hh"
 
 Logger::Logger(const char filename[]) {
 }

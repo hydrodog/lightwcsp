@@ -9,7 +9,7 @@
 #define SERVER_H_
 
 #define BASEDIR "htdocs"
-#define SERVER_STRING "Server: lwc/1\r\n"
+
 extern const char HEADER[];
 extern const unsigned int HEADER_SIZE;
 

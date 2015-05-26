@@ -5,8 +5,6 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <FileSys.hh>
-#include <unistd.h>
-#include <stdlib.h>
 using namespace std;
 
 InMemoryFileServlet::InMemoryFileServlet(struct dirent* entry) {
@@ -15,26 +13,26 @@ InMemoryFileServlet::InMemoryFileServlet(struct dirent* entry) {
   const string& mimetype = mimeType[filetype];
   struct stat statbuf;
   lstat(entry->d_name, &statbuf);
-  buflen = statbuf.st_size + HEADER_SIZE + mimetype.size()+10;
+  size_t filelen = statbuf.st_size + HEADER_SIZE + mimetype.size();
 	//     f->filedir = filedir + "/" + entry->d_name;
-  FILE* inputf = fopen(entry->d_name, "rb");
+  FILE* inputf = fopen(filename.c_str(), "rb");
   if (inputf == nullptr) cout << "cannot open " << entry->d_name;
   else {
-    buf = new char[buflen];
+    buf = new char[filelen];
     if (buf == nullptr){ //TODO: should be unnecessary
       cerr << "Memory error" << endl;
-      exit(1);
+      exit(2);
     }
+  }
   // preload the header information into the buffer
   char* buf2 = headers(buf, mimetype);
   // load file into the buffer
-  int bytesRead = fread(buf2, statbuf.st_size, 1, inputf);
-  cout<<"succeed load in :"<<entry->d_name<<endl;
+  int bytesRead = fread(buf2, filelen, 1, inputf);
   fclose(inputf);
-  }  
+
 }
 
 void InMemoryFileServlet::doGet(HttpRequest& req) {
-  req.sendbuf(buf, buflen);
+  req.send(buf, buflen);
 
 }
