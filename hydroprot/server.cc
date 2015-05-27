@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <stdio.h>
 #include <string>
 #include <cstring>
 
@@ -98,28 +99,29 @@ int main()
 	cout << "Hydroprot running on port " <<  port << endl;
 	cout << "Socket: " << server_sock << endl;
 
-	client_sock = accept(server_sock, (struct sockaddr *) &client_name, &client_name_len);
-	cout << "Accepted socket: " << client_sock << endl;
+	while (true) {
+		client_sock = accept(server_sock, (struct sockaddr *) &client_name, &client_name_len);
+		cout << "Accepted socket: " << client_sock << endl;
 
-	if (client_sock >= 0)
-	{
-		char buff[BUFFSIZE];
-		// memset(buff,0,BUFFSIZE);
-		
-		// Read message (same as read())
-		// numchars is the message lentgh, or -1 if there's an error
-		// int numchars = read(client_sock, buff, BUFFSIZE - 1);
-		// if(numchars < 0)
-		// 	perror("read");
-
-		// cout << "Message: " << buff << endl;
-
-		// Send message back (same as write())
-		write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);
-		close(client_sock);
+		if (client_sock >= 0) {
+			char buff[BUFFSIZE];
+			// memset(buff,0,BUFFSIZE);
+			
+			// Read message (same as read())
+			// numchars is the message lentgh, or -1 if there's an error
+			// int numchars = read(client_sock, buff, BUFFSIZE - 1);
+			// if(numchars < 0)
+			// 	perror("read");
+			
+			// cout << "Message: " << buff << endl;
+			
+			// Send message back (same as write())
+			write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);
+			close(client_sock);
+		}
+		else
+			perror("accept failed\n");
 	}
-	else
-		error_die("accept");
 
 	close(server_sock);
 	return 0;

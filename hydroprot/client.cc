@@ -13,6 +13,7 @@
 // #include <string>
 #include <cstring>
 #include <iomanip>
+#include <stdio.h>
 #include <regex>
 
 using namespace std;

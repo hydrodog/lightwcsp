@@ -1,12 +1,13 @@
-all:
-	g++ server.cc -o server
-	g++ client.cc -o client
+CPP = g++ -std=c++11
+DEBUG = -g
+OPT = #-O2
+all:	server client
 
-server:
-	g++ server.cc -o server
+server: server.cc
+	$(CPP) $(DEBUG) $(OPT) server.cc -o server
 
-client:
-	g++ client.cc -o client
+client: client.cc
+	$(CPP) $(DEBUG) $(OPT) client.cc -o client
 
 run:
 	./server
