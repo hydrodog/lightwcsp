@@ -10,7 +10,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <cstring>
 
@@ -64,7 +64,7 @@ int startup(uint16_t& port)
 			perror("setsockopt");
 
 		// tries to bind
-		if (bind(sockfd, p->ai_addr, p->ai_addrlen) < 0)
+		if (::bind(sockfd, p->ai_addr, p->ai_addrlen) < 0)
 		{
 			close(sockfd);
 			perror("server: bind");

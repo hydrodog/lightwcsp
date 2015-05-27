@@ -16,3 +16,4 @@ run:
 clean:
 	rm server
 	rm client
+	rm -R *.dSYM
