@@ -32,11 +32,12 @@ void error_die(const char *s)
 
 int main(int argc,char *argv[])
 {
-	if(argc < 2)
+	if(argc < 3)
 	{
 		cout << "IP address is missing" << endl;
 		return 0;
 	}
+	int n = atoi(argv[1]);
 	int sockfd;
 	struct addrinfo hints, *result, *p;
 	char buff[BUFFSIZE];
@@ -47,8 +48,11 @@ int main(int argc,char *argv[])
 	hints.ai_flags = 0;
 	hints.ai_protocol = 0;
 
-	if(getaddrinfo(argv[1],PORT,&hints,&result))
+	if(getaddrinfo(argv[2],PORT,&hints,&result))
 		error_die("getaddrinfo");
+
+
+	for (int tries = 0; tries < n; tries++) {
 
 	for(p = result; p; p = p->ai_next)
 	{
@@ -66,8 +70,6 @@ int main(int argc,char *argv[])
 
 	if(!p)
 		error_die("Could not connect");
-
-	freeaddrinfo(result);
 
 	// cout << "Enter the message: ";
 	// cin >> buff;
@@ -93,6 +95,8 @@ int main(int argc,char *argv[])
 
 	close(sockfd);
 
+	}
+	freeaddrinfo(result);
 
 	return 0;
 }
