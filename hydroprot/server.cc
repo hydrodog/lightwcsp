@@ -104,15 +104,15 @@ int main()
 	if (client_sock >= 0)
 	{
 		char buff[BUFFSIZE];
-		memset(buff,0,BUFFSIZE);
+		// memset(buff,0,BUFFSIZE);
 		
 		// Read message (same as read())
 		// numchars is the message lentgh, or -1 if there's an error
-		int numchars = read(client_sock, buff, BUFFSIZE - 1);
-		if(numchars < 0)
-			perror("read");
+		// int numchars = read(client_sock, buff, BUFFSIZE - 1);
+		// if(numchars < 0)
+		// 	perror("read");
 
-		cout << "Message: " << buff << endl;
+		// cout << "Message: " << buff << endl;
 
 		// Send message back (same as write())
 		write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);

@@ -13,6 +13,7 @@
 // #include <string>
 #include <cstring>
 #include <iomanip>
+#include <regex>
 
 using namespace std;
 
@@ -67,11 +68,11 @@ int main(int argc,char *argv[])
 
 	freeaddrinfo(result);
 
-	cout << "Enter the message: ";
-	cin >> buff;
+	// cout << "Enter the message: ";
+	// cin >> buff;
 
-	if(write(sockfd,buff,strlen(buff)) < 0)
-		error_die("Error writing to socket");
+	// if(write(sockfd,buff,strlen(buff)) < 0)
+	// 	error_die("Error writing to socket");
 
 	if(read(sockfd,buff,BUFFSIZE - 1) < 0)
 		error_die("Error reading from socket");
