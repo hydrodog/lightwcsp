@@ -24,6 +24,17 @@ using namespace std;
 #define BACKLOG 10
 #define BUFFSIZE 1024
 
+struct addrinfo *result;
+int sockfd;
+
+void signal_handler(int sig)
+{
+	cout << "Caught signal " << sig << endl;
+	if(sockfd > 0)
+		close(sockfd);
+	exit(sig);
+}
+
 void error_die(const char *s)
 {
 	perror(s);
@@ -37,9 +48,12 @@ int main(int argc,char *argv[])
 		cout << "Number of tries or IP address is missing" << endl;
 		return 0;
 	}
+
+	signal(SIGINT, signal_handler);
+
 	int n = atoi(argv[1]);
-	int sockfd;
-	struct addrinfo hints, *result, *p;
+	// int sockfd;
+	struct addrinfo hints, *p;
 	char buff[BUFFSIZE];
 
 	memset(&hints, 0, sizeof(hints));
@@ -53,50 +67,51 @@ int main(int argc,char *argv[])
 
 	float v[9];
 
-	for(int tries = 0; tries < n; tries++) {
-
-	for(p = result; p; p = p->ai_next)
+	for(int tries = 0; tries < n; tries++)
 	{
-		if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+
+		for(p = result; p; p = p->ai_next)
 		{
-			perror("client: socket");
-			continue;
+			if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+			{
+				perror("client: socket");
+				continue;
+			}
+
+			if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
+				break;	// Success
+
+			close(sockfd);
 		}
 
-		if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
-			break;	// Success
+		if(!p)
+			error_die("Could not connect");
+
+		// cout << "Enter the message: ";
+		// cin >> buff;
+
+		// if(write(sockfd,buff,strlen(buff)) < 0)
+		// 	error_die("Error writing to socket");
+
+		if(read(sockfd,buff,BUFFSIZE - 1) < 0)
+			error_die("Error reading from socket");
+
+		sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
+
+		cout << v[0] << endl;
+		cout << v[1] << endl;
+		cout << v[2] << endl;
+		cout << v[3] << endl;
+		cout << v[4] << endl;
+		cout << v[5] << endl;
+		cout << v[6] << endl;
+		cout << v[7] << endl;
+		cout << v[8] << endl;
 
 		close(sockfd);
-	}
-
-	if(!p)
-		error_die("Could not connect");
-
-	// cout << "Enter the message: ";
-	// cin >> buff;
-
-	// if(write(sockfd,buff,strlen(buff)) < 0)
-	// 	error_die("Error writing to socket");
-
-	if(read(sockfd,buff,BUFFSIZE - 1) < 0)
-		error_die("Error reading from socket");
-
-	sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
-
-	cout << v[0] << endl;
-	cout << v[1] << endl;
-	cout << v[2] << endl;
-	cout << v[3] << endl;
-	cout << v[4] << endl;
-	cout << v[5] << endl;
-	cout << v[6] << endl;
-	cout << v[7] << endl;
-	cout << v[8] << endl;
-
-	close(sockfd);
 
 	}
-	
+
 	freeaddrinfo(result);
 
 	// File reconstruction

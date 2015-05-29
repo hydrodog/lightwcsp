@@ -13,12 +13,15 @@
 // #include <cstdio>
 #include <cstring>
 #include <string>
+#include <csignal>
 
 using namespace std;
 
 #define PORT "2000"
 #define BACKLOG 10
 #define BUFFSIZE 1024
+
+int server_sock = -1;
 
 // http://www.linuxhowtos.org/C_C++/socket.htm
 
@@ -30,6 +33,14 @@ using namespace std;
 // 	else
 // 		return &(((struct sockaddr_in6*) sa)->sin6_addr);
 // }
+
+void signal_handler(int sig)
+{
+	cout << "Caught signal " << sig << endl;
+	if(server_sock > 0)
+		close(server_sock);
+	exit(sig);
+}
 
 void error_die(const char *s)
 {
@@ -89,16 +100,18 @@ int startup(uint16_t& port)
 
 int main()
 {
+	signal(SIGINT, signal_handler);
+
 	uint16_t port = 0;
 	int client_sock = 0;
+	// int server_sock = -1;;
 	struct sockaddr_in client_name;
 	socklen_t client_name_len = sizeof(client_name);
 
-	int server_sock = -1;
 	server_sock = startup(port);
 	cout << "Hydroprot running on port " <<  port << endl;
 	cout << "Socket: " << server_sock << endl;
-	
+
 	char buff[BUFFSIZE];
 
 	while (true) {
