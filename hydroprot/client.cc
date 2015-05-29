@@ -67,25 +67,25 @@ int main(int argc,char *argv[])
 
 	float v[9];
 
-	for(p = result; p; p = p->ai_next)
-	{
-		if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
-		{
-			perror("client: socket");
-			continue;
-		}
-
-		if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
-			break;	// Success
-
-		close(sockfd);
-	}
-
-	if(!p)
-		error_die("Could not connect");
-
 	for(int tries = 0; tries < n; tries++)
 	{
+
+		for(p = result; p; p = p->ai_next)
+		{
+			if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+			{
+				perror("client: socket");
+				continue;
+			}
+
+			if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
+				break;	// Success
+
+			close(sockfd);
+		}
+
+		if(!p)
+			error_die("Could not connect");
 
 		// cout << "Enter the message: ";
 		// cin >> buff;
