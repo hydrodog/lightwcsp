@@ -10,9 +10,9 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include <cstdio>
+// #include <cstdio>
+#include <cstring>
 #include <string>
-// #include <cstring>
 
 using namespace std;
 
