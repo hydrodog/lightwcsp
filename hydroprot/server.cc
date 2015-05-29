@@ -12,7 +12,7 @@
 #include <signal.h>
 #include <cstdio>
 #include <string>
-#include <cstring>
+// #include <cstring>
 
 using namespace std;
 
@@ -98,13 +98,14 @@ int main()
 	server_sock = startup(port);
 	cout << "Hydroprot running on port " <<  port << endl;
 	cout << "Socket: " << server_sock << endl;
+	
+	char buff[BUFFSIZE];
 
 	while (true) {
 		client_sock = accept(server_sock, (struct sockaddr *) &client_name, &client_name_len);
-		cout << "Accepted socket: " << client_sock << endl;
+		// cout << "Accepted socket: " << client_sock << endl;
 
 		if (client_sock >= 0) {
-			char buff[BUFFSIZE];
 			// memset(buff,0,BUFFSIZE);
 			
 			// Read message (same as read())

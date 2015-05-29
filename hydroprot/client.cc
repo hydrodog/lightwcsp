@@ -34,7 +34,7 @@ int main(int argc,char *argv[])
 {
 	if(argc < 3)
 	{
-		cout << "IP address is missing" << endl;
+		cout << "Number of tries or IP address is missing" << endl;
 		return 0;
 	}
 	int n = atoi(argv[1]);
@@ -51,8 +51,9 @@ int main(int argc,char *argv[])
 	if(getaddrinfo(argv[2],PORT,&hints,&result))
 		error_die("getaddrinfo");
 
+	float v[9];
 
-	for (int tries = 0; tries < n; tries++) {
+	for(int tries = 0; tries < n; tries++) {
 
 	for(p = result; p; p = p->ai_next)
 	{
@@ -80,22 +81,22 @@ int main(int argc,char *argv[])
 	if(read(sockfd,buff,BUFFSIZE - 1) < 0)
 		error_die("Error reading from socket");
 
-	float v[9];
 	sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
 
-	cout << '$' << fixed << setprecision(2) << v[0] << endl;
-	cout << '$' << fixed << setprecision(2) << v[1] << endl;
-	cout << '$' << fixed << setprecision(2) << v[2] << endl;
-	cout << '$' << fixed << setprecision(2) << v[3] << endl;
-	cout << '$' << fixed << setprecision(2) << v[4] << endl;
-	cout << '$' << fixed << setprecision(2) << v[5] << endl;
-	cout << '$' << fixed << setprecision(2) << v[6] << endl;
-	cout << '$' << fixed << setprecision(2) << v[7] << endl;
-	cout << '$' << fixed << setprecision(2) << v[8] << endl;
+	cout << v[0] << endl;
+	cout << v[1] << endl;
+	cout << v[2] << endl;
+	cout << v[3] << endl;
+	cout << v[4] << endl;
+	cout << v[5] << endl;
+	cout << v[6] << endl;
+	cout << v[7] << endl;
+	cout << v[8] << endl;
 
 	close(sockfd);
 
 	}
+	
 	freeaddrinfo(result);
 
 	// File reconstruction
