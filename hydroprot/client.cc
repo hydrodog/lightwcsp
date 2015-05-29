@@ -53,7 +53,7 @@ int main(int argc,char *argv[])
 
 	int n = atoi(argv[1]);
 	// int sockfd;
-	struct addrinfo hints, *p;
+	struct addrinfo hints, /* result, */ *p;
 	char buff[BUFFSIZE];
 
 	memset(&hints, 0, sizeof(hints));
@@ -67,25 +67,25 @@ int main(int argc,char *argv[])
 
 	float v[9];
 
-	for(int tries = 0; tries < n; tries++)
+	for(p = result; p; p = p->ai_next)
 	{
-
-		for(p = result; p; p = p->ai_next)
+		if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
 		{
-			if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
-			{
-				perror("client: socket");
-				continue;
-			}
-
-			if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
-				break;	// Success
-
-			close(sockfd);
+			perror("client: socket");
+			continue;
 		}
 
-		if(!p)
-			error_die("Could not connect");
+		if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
+			break;	// Success
+
+		close(sockfd);
+	}
+
+	if(!p)
+		error_die("Could not connect");
+
+	for(int tries = 0; tries < n; tries++)
+	{
 
 		// cout << "Enter the message: ";
 		// cin >> buff;
@@ -98,19 +98,19 @@ int main(int argc,char *argv[])
 
 		sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
 
-		cout << v[0] << endl;
-		cout << v[1] << endl;
-		cout << v[2] << endl;
-		cout << v[3] << endl;
-		cout << v[4] << endl;
-		cout << v[5] << endl;
-		cout << v[6] << endl;
-		cout << v[7] << endl;
-		cout << v[8] << endl;
-
-		close(sockfd);
+		// cout << v[0] << endl;
+		// cout << v[1] << endl;
+		// cout << v[2] << endl;
+		// cout << v[3] << endl;
+		// cout << v[4] << endl;
+		// cout << v[5] << endl;
+		// cout << v[6] << endl;
+		// cout << v[7] << endl;
+		// cout << v[8] << endl;
 
 	}
+
+	close(sockfd);
 
 	freeaddrinfo(result);
 

@@ -1,0 +1,57 @@
+10 iterations
+	real	0m0.476s
+	user	0m0.002s
+	sys	0m0.005s
+
+100 iterations
+	real	0m4.669s
+	user	0m0.007s
+	sys	0m0.017s
+
+	real	0m4.802s
+	user	0m0.007s
+	sys	0m0.017s
+
+100 iterations (after signal handler)
+	real	0m6.008s
+	user	0m0.007s
+	sys	0m0.017s
+
+	real	0m4.591s
+	user	0m0.007s
+	sys	0m0.017s
+
+100 iterations (without printing values)
+	real	0m4.649s
+	user	0m0.003s
+	sys	0m0.015s
+
+	real	0m4.693s
+	user	0m0.003s
+	sys	0m0.014s
+
+100 iterations (client without signal handler)
+	real	0m6.051s
+	user	0m0.003s
+	sys	0m0.014s
+
+	real	0m4.659s
+	user	0m0.004s
+	sys	0m0.014s
+
+	real	0m4.632s
+	user	0m0.004s
+	sys	0m0.015s
+
+	real	0m4.594s
+	user	0m0.004s
+	sys	0m0.014s
+
+100 iterations (without reopening client socket)
+	real	0m0.050s
+	user	0m0.002s
+	sys	0m0.002s
+
+	real	0m0.052s
+	user	0m0.002s
+	sys	0m0.002s
