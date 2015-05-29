@@ -1,0 +1,51 @@
+<html>
+<table>
+{{for
+  <tr><td>
+  {{ i }}
+</html>
+
+
+#include <regex>
+#include <unistd.h>
+
+/({#).*?#}|({{)
+
+class HSStream {
+int fh = open( )
+lstat/fstat
+read(fh, buffer, len);
+
+	 regexreplace (pattern, value);
+};
+{#
+
+
+
+
+
+#}
+#Macros
+
+    To define a macro inline:
+        Don't do this! Use macros.html
+        If you absolutely need to, define it at the top of the page,
+        not somewhere in the middle.
+
+    To define a macro in macros.html:
+        View macros.html
+
+    To import macros.html
+        {{ import 'macros.html' as macros }}
+
+    To call a macro imported from macros.html:
+        {{ macros.generic_macro("I'm standard", default_arg="foo") }}
+
+http: 1.1
+
+Content-type: text/plain
+
+
+<html>
+...
+</html>
