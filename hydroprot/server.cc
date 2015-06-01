@@ -10,10 +10,10 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-// #include <cstdio>
 #include <cstring>
 #include <string>
 #include <csignal>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -98,8 +98,28 @@ int startup(uint16_t& port)
 	return sockfd;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+	if(argc < 2)
+	{
+		cout << "File is missing" << endl;
+		return 0;
+	}
+
+	struct stat fstats;
+	int fd = open(argv[1],O_RDONLY);
+
+	if(!fd)
+	{
+		cout << "Error opening the file" << endl;
+		return 0;
+	}
+	if(fstat(fd,&fstats))
+	{
+		cout << "Error getting file stats" << endl;
+		return 0;
+	}
+
 	signal(SIGINT, signal_handler);
 
 	uint16_t port = 0;
@@ -113,24 +133,35 @@ int main()
 	cout << "Socket: " << server_sock << endl;
 
 	char buff[BUFFSIZE];
+	int opt;
 
-	while (true) {
+	for(;;)
+	{
 		client_sock = accept(server_sock, (struct sockaddr *) &client_name, &client_name_len);
 		// cout << "Accepted socket: " << client_sock << endl;
 
-		if (client_sock >= 0) {
+		if (client_sock >= 0)
+		{
 			// memset(buff,0,BUFFSIZE);
 			
 			// Read message (same as read())
 			// numchars is the message lentgh, or -1 if there's an error
-			// int numchars = read(client_sock, buff, BUFFSIZE - 1);
-			// if(numchars < 0)
-			// 	perror("read");
-			
-			// cout << "Message: " << buff << endl;
+			int numchars = read(client_sock, &opt, sizeof(int));
+			if(numchars < 0)
+				perror("read");
+
+			if(!opt)
+			{
+				read(fd,buff,BUFFSIZE);
+				write(client_sock,buff,BUFFSIZE);
+			}
+			else
+			{
+				write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);
+			}
 			
 			// Send message back (same as write())
-			write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);
+			// write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);
 			close(client_sock);
 		}
 		else

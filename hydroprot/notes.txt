@@ -1,6 +1,6 @@
 <html>
 <table>
-{{for
+{{for}}
   <tr><td>
   {{ i }}
 </html>

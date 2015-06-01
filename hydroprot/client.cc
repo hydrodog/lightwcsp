@@ -45,13 +45,13 @@ int main(int argc,char *argv[])
 {
 	if(argc < 3)
 	{
-		cout << "Number of tries or IP address is missing" << endl;
+		cout << "IP address or option is missing" << endl;
 		return 0;
 	}
 
 	signal(SIGINT, signal_handler);
 
-	int n = atoi(argv[1]);
+	// int n = atoi(argv[1]);
 	// int sockfd;
 	struct addrinfo hints, /* result, */ *p;
 	char buff[BUFFSIZE];
@@ -62,63 +62,60 @@ int main(int argc,char *argv[])
 	hints.ai_flags = 0;
 	hints.ai_protocol = 0;
 
-	if(getaddrinfo(argv[2],PORT,&hints,&result))
+	if(getaddrinfo(argv[1],PORT,&hints,&result))
 		error_die("getaddrinfo");
 
 	float v[9];
 
-	for(int tries = 0; tries < n; tries++)
+	for(p = result; p; p = p->ai_next)
 	{
-
-		for(p = result; p; p = p->ai_next)
+		if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
 		{
-			if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
-			{
-				perror("client: socket");
-				continue;
-			}
-
-			if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
-				break;	// Success
-
-			close(sockfd);
+			perror("client: socket");
+			continue;
 		}
 
-		if(!p)
-			error_die("Could not connect");
+		if(!connect(sockfd, p->ai_addr, p->ai_addrlen))
+			break;	// Success
 
-		// cout << "Enter the message: ";
-		// cin >> buff;
+		close(sockfd);
+	}
 
-		// if(write(sockfd,buff,strlen(buff)) < 0)
-		// 	error_die("Error writing to socket");
+	if(!p)
+		error_die("Could not connect");
 
+	// cout << "Enter the message: ";
+	// cin >> buff;
+	int ch = atoi(argv[2]);
+
+	if(write(sockfd,&ch,sizeof(ch)) < 0)
+		error_die("Error writing to socket");
+	if(ch)
+	{
 		if(read(sockfd,buff,BUFFSIZE - 1) < 0)
 			error_die("Error reading from socket");
-
 		sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
-
-		// cout << v[0] << endl;
-		// cout << v[1] << endl;
-		// cout << v[2] << endl;
-		// cout << v[3] << endl;
-		// cout << v[4] << endl;
-		// cout << v[5] << endl;
-		// cout << v[6] << endl;
-		// cout << v[7] << endl;
-		// cout << v[8] << endl;
-
 	}
+	else
+	{
+		ofstream out("static.dat");
+		if(read(sockfd,buff,BUFFSIZE - 1) < 0)
+			error_die("Error reading from socket");
+		out << buff;
+		out.close();
+	}
+
 
 	close(sockfd);
 
 	freeaddrinfo(result);
 
+	/*
 	// File reconstruction
 	ifstream fixed("fixed.dat");
 	ifstream vec("vec.dat");
 
-	if((!fixed.is_open())||(!vec.is_open()))
+	if(fixed.is_open() && vec.is_open())
 	{
 		cout << "Unable to open files" << endl;
 		return 0;
@@ -168,6 +165,9 @@ int main(int argc,char *argv[])
 			}
 		}
 	}
+	file.close();
+	fixed.close();
+	vec.close();*/
 
 	return 0;
 }
