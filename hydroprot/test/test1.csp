@@ -1,0 +1,11 @@
+<html>
+<head>
+<title>test</title>
+</head>
+<body bgcolor="blue">
+&lt;%
+<% for(int i = 1; i <= 100; i++) { %>
+  <p>Test {{ i }}</p>
+<% } %>
+</body>
+</html>
