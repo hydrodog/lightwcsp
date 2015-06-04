@@ -3,6 +3,7 @@
 #include <openssl/err.h>
 #include <string.h>
 
+:
 int main(int arc, char *argv[])
 {
   /* Set up the key and iv. Do I need to say to not hard code these in a
