@@ -11,8 +11,8 @@ public:
 			b.append("<p>Test ");
 			b.append(i);
 			b.append("</p>\n");
-			b.append("</body>\n");
-			b.append("</html>\n");
 		}
+		b.append("</body>\n");
+		b.append("</html>\n");
 	}
 };

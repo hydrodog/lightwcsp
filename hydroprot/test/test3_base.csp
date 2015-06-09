@@ -10,7 +10,7 @@
 <body>
   <h1>{% block title %}{% endblock %}</h1>
     <div id="content">{% block content %}{% endblock %}</div>
-    <div id="unsafe" >{% unsafe danger %}{% endunsafe %}</div>
+    <div id="unsafe" >{% block danger %}{% endblock %}</div>
     <div id="footer">
       {% attr author="Dov Kruger" %}
         {% block footer %}
