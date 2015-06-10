@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css" />
+    <title>{% block title %}{% endblock %}</title>
+    {% block head %}
+    {% endblock %}
+</head>
+
+<body>
+  <h1>{% block title %}{% endblock %}</h1>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="unsafe" >{% block danger %}{% endblock %}</div>
+    <div id="footer">
+      {% attr author="Dov Kruger" %}
+        {% block footer %}
+        &copy; Copyright 2015 by <a href="http://domain.invalid/">you</a>.
+        {% endblock %}
+    </div>
+</body>
+</html>
