@@ -13,4 +13,3 @@
       Welcome to my awesome homepage.
     </p>
 {% endblock %}
-{% attr author %}
