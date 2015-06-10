@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
 	const int n = atoi(argv[1]);
 	
-	char* outputFile = nullptr;
+	char* outputFile=nullptr;
 	if (argc > 2) {
 		outputFile  = argv[2];
 	}
@@ -111,18 +111,18 @@ int main(int argc, char *argv[])
   unsigned char *iv = (unsigned char*)"01234567890123456";
   /* Message to be encrypted */
 	unsigned int* data = new unsigned int[n];
-
+  for (int i =0;i<n;i++) data[i]=65+i%25;
   unsigned char *plaintext = (unsigned char*)data;
-     "The quick brown fox jumps over the lazy dog";
+  //   "The quick brown fox jumps over the lazy dog";
   /* Buffer for ciphertext. Ensure the buffer is long enough for the
    * ciphertext which may be longer than the plaintext, dependant on the
    * algorithm and mode
    */
 
-		 unsigned char ciphertext[n*sizeof(int)];
+  unsigned char ciphertext[2*n*sizeof(unsigned int)];
 
   /* Buffer for the decrypted text */
-  unsigned char decryptedtext[128];
+  unsigned char decryptedtext[n*sizeof(unsigned int)];
   int decryptedtext_len, ciphertext_len;
 
   /* Initialise the library */
@@ -131,15 +131,25 @@ int main(int argc, char *argv[])
   OPENSSL_config(NULL);
 
   /* Encrypt the plaintext */
+  for(int i =0;i<n;i++)
+	  cout<<plaintext+i;
   ciphertext_len = encrypt(plaintext, n, key, iv, ciphertext);
-
+  decryptedtext_len =decrypt(ciphertext,ciphertext_len,key,iv,plaintext);
 
 	if(outputFile!=nullptr){
 		ofstream f(outputFile); // write out encrypted data
+		f<<"key: "<<key<<endl;
+		f<<"iv: "<<iv<<endl;
+		
+		f<<"cipher text:"<<ciphertext<<endl;
+		f<<"plain text:";
+		for (int i =0;i<n;i++)
+			f<<plaintext+i;
+		f<<endl;
 	}
   /* Clean up */
   EVP_cleanup();
   ERR_free_strings();
 
   return 0;
-}
+}	
