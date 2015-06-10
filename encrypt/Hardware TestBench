@@ -1,0 +1,99 @@
+module TestBench;
+ 
+	// Outputs
+	reg clk;
+	reg [127:0] data_encry, key_encry, data_decry, key_decry;
+	wire[127:0] key_output, count, dataa, datab, datac, datad, datae, key, subkey, key1, subkey1, dataf, datag, datah, datai, dataj, encry_output, decry_output;
+ 
+	// Instantiate the Unit Under Test (UUT)
+	
+	XOR
+	XOR(
+	   .subkey(subkey),
+		.datad(datad),
+		.datae(datae),
+		.clk(clk),
+		.datah(datah),
+		.datai(datai),
+		.subkey1(subkey1),
+		.count(count),
+		.encry_output(encry_output),
+		.decry_output(decry_output)
+	);
+	
+	KeyGenerate
+	KeyGenerate(
+	   .key(key),
+		.subkey(subkey),
+		.clk(clk),
+		.key1(key1),
+		.subkey1(subkey1),
+		.key_output(key_output)
+	);
+	
+	
+	ByteSub
+	ByteSub(
+		.dataa(dataa),
+		.datab(datab),
+		.clk(clk),
+		.datah(datah),
+		.datag(datag)
+	);
+	
+	Round
+	Round(
+	   .dataa(dataa),
+		.datae(datae),
+		.key(key),
+		.subkey(subkey),
+		.clk(clk),
+		.count(count),
+		.dataf(dataf),
+		.key1(key1),
+		.subkey1(subkey1),
+		.dataj(dataj),
+		.data_encry(data_encry),
+		.key_encry(key_encry),
+		.data_decry(data_decry),
+		.key_decry(key_decry)
+	);
+	
+	ShiftRow
+	ShiftRow(
+	   .datab(datab),
+		.datac(datac),
+		.clk(clk),
+		.datag(datag),
+		.dataf(dataf)
+	);
+	
+	MixCol
+	MixCol(
+	   .datac(datac),
+		.datad(datad),
+		.clk(clk),
+		.count(count),
+		.datai(datai),
+		.dataj(dataj)
+	);
+ 
+	initial begin
+		// Initialize Inputs
+      clk=0;
+		// Wait 100 ns for global reset to finish
+      data_encry =128'h00112233445566778899aabbccddeeff;
+		key_encry  =128'h000102030405060708090a0b0c0d0e0f;
+		data_decry =128'h69c4e0d86a7b0430d8cdb78070b4c55a;
+		key_decry  =128'h13111d7fe3944a17f307a78b4d2b30c5;
+		// Add stimulus here
+ 
+	end
+	
+	always begin
+	#10 clk=~clk;
+	end
+	
+	
+      
+endmodule
