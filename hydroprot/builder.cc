@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 
 	regex_search(string(argv[1]),sm,regex("(\\w+\\/)*(\\w+)(\\.\\w+)"));
 	
-	ofstream file(sm[2].str()+".cc");
+	ofstream file(string(argv[1])+".cc");
 
 	file << "class " << sm[2].str() << " : public HttpServlet"
 		<< "\n{\npublic:\n\tvoid doGet(HttpRequest& req)\n\t{\n"

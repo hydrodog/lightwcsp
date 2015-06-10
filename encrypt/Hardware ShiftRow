@@ -1,0 +1,48 @@
+module ShiftRow(datab, datac, clk, dataf, datag
+    );
+ 
+input clk;
+input[127:0] datab, dataf;
+output[127:0] datac, datag;
+reg[127:0] datac, datag;
+ 
+initial begin
+datac=128'dz;
+end
+ 
+always@(posedge clk) begin
+datac[127:120]=datab[127:120];
+datac[119:112]=datab[87:80];
+datac[111:104]=datab[47:40];
+datac[103:96]=datab[7:0];
+datac[95:88]=datab[95:88];
+datac[87:80]=datab[55:48];
+datac[79:72]=datab[15:8];
+datac[71:64]=datab[103:96];
+datac[63:56]=datab[63:56];
+datac[55:48]=datab[23:16];
+datac[47:40]=datab[111:104];
+datac[39:32]=datab[71:64];
+datac[31:24]=datab[31:24];
+datac[23:16]=datab[119:112];
+datac[15:8]=datab[79:72];
+datac[7:0]=datab[39:32];
+datag[127:120]=dataf[127:120];
+datag[119:112]=dataf[23:16];
+datag[111:104]=dataf[47:40];
+datag[103:96]=dataf[71:64];
+datag[95:88]=dataf[95:88];
+datag[87:80]=dataf[119:112];
+datag[79:72]=dataf[15:8];
+datag[71:64]=dataf[39:32];
+datag[63:56]=dataf[63:56];
+datag[55:48]=dataf[87:80];
+datag[47:40]=dataf[111:104];
+datag[39:32]=dataf[7:0];
+datag[31:24]=dataf[31:24];
+datag[23:16]=dataf[55:48];
+datag[15:8]=dataf[79:72];
+datag[7:0]=dataf[103:96];
+end
+ 
+endmodule
