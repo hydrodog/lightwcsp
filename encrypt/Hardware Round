@@ -1,0 +1,44 @@
+module Round( 
+    input clk,
+	 input[127:0] data_encry,
+	 input[127:0] key_encry,
+	 input[127:0] data_decry,
+	 input[127:0] key_decry,
+    input[127:0] subkey,
+	 input[127:0] subkey1,
+    input[127:0] datae,
+	 input[127:0] dataj,
+    output reg [127:0] dataa,
+    output reg [127:0] key,
+	 output reg [127:0] key1,
+	 output reg [127:0] count,
+	 output reg [127:0] dataf
+    );
+ 
+initial begin
+dataa=128'dz;
+key  =128'dz;
+dataf=128'dz;
+key1 =128'dz;
+count=0;
+end
+ 
+always@(posedge clk) begin
+if(count==0)
+begin
+key  =key_encry;
+key1 =key_decry;
+dataa=data_encry^key;
+dataf=data_decry^key1;
+end
+else
+if(count==5||count==10||count==15||count==20||count==25||count==30||count==35||count==40||count==45||count==50)
+begin
+dataa=datae;
+key=subkey;
+key1=subkey1;
+dataf=dataj;
+end
+count=count+1;
+end
+endmodule
