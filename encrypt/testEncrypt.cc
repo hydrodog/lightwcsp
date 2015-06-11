@@ -4,6 +4,7 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 void handleErrors(void)
@@ -89,6 +90,13 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
   return plaintext_len;
 }
 
+void print(ostream& s, const char msg[], unsigned char text[], int n) {
+  s << msg << "\tlength =" << n << '\n';
+	for(int i = 0;i < n;i++)
+	  cout << hex << setw(2) << setfill('0') << (unsigned int)text[i];
+	cout << dec <<'\n';
+}
+
 int main(int argc, char *argv[])
 {
  	if (argc < 2) {
@@ -110,8 +118,9 @@ int main(int argc, char *argv[])
   /* A 128 bit IV */
   unsigned char *iv = (unsigned char*)"01234567890123456";
   /* Message to be encrypted */
-	unsigned int* data = new unsigned int[n];
-  for (int i =0;i<n;i++) data[i]=65+i%25;
+	unsigned int* data = new unsigned int[n+4];
+  for (int i =0;i<n;i++) data[i]=i+1;
+	const int n4 = sizeof(int)*n;
   unsigned char *plaintext = (unsigned char*)data;
   //   "The quick brown fox jumps over the lazy dog";
   /* Buffer for ciphertext. Ensure the buffer is long enough for the
@@ -119,37 +128,36 @@ int main(int argc, char *argv[])
    * algorithm and mode
    */
 
-  unsigned char ciphertext[2*n*sizeof(unsigned int)];
+  unsigned char ciphertext[n4+16];
 
   /* Buffer for the decrypted text */
-  unsigned char decryptedtext[n*sizeof(unsigned int)];
-  int decryptedtext_len, ciphertext_len;
+  unsigned char decryptedtext[n4];
 
   /* Initialise the library */
   ERR_load_crypto_strings();
   OpenSSL_add_all_algorithms();
   OPENSSL_config(NULL);
 
-  /* Encrypt the plaintext */
-  for(int i =0;i<n;i++)
-	  cout<<plaintext+i;
-  ciphertext_len = encrypt(plaintext, n, key, iv, ciphertext);
-  decryptedtext_len =decrypt(ciphertext,ciphertext_len,key,iv,plaintext);
 
+	print(cout, "plaintext", plaintext, n4);
+  /* Encrypt the plaintext */
+  int ciphertext_len = encrypt(plaintext, n4, key, iv, ciphertext);
+	print(cout, "encrypted", ciphertext, n4);
+
+  int decryptedtext_len =decrypt(ciphertext,ciphertext_len,key,iv,plaintext);
+	print(cout, "decrypted", plaintext, n4);
+  
 	if(outputFile!=nullptr){
 		ofstream f(outputFile); // write out encrypted data
 		f<<"key: "<<key<<endl;
 		f<<"iv: "<<iv<<endl;
-		
-		f<<"cipher text:"<<ciphertext<<endl;
-		f<<"plain text:";
-		for (int i =0;i<n;i++)
-			f<<plaintext+i;
-		f<<endl;
+	
+		print(f, "ciphertext", ciphertext, n4);
+		print(f, "plaintext", plaintext, n4);
 	}
   /* Clean up */
-  EVP_cleanup();
-  ERR_free_strings();
+	//  EVP_cleanup();
+	// ERR_free_strings();
 
   return 0;
 }	
