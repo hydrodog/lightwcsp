@@ -5,8 +5,9 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <time.h>
 using namespace std;
-
+#define COUNT 10000
 void handleErrors(void)
 {
   ERR_print_errors_fp(stderr);
@@ -99,6 +100,7 @@ void print(ostream& s, const char msg[], unsigned char text[], int n) {
 
 int main(int argc, char *argv[])
 {
+	clock_t totaltime=clock();
  	if (argc < 2) {
 		cerr << "usage: testEncrypt n [output]\n";
 		exit(-1);
@@ -137,27 +139,34 @@ int main(int argc, char *argv[])
   ERR_load_crypto_strings();
   OpenSSL_add_all_algorithms();
   OPENSSL_config(NULL);
-
-
-	print(cout, "plaintext", plaintext, n4);
-  /* Encrypt the plaintext */
-  int ciphertext_len = encrypt(plaintext, n4, key, iv, ciphertext);
-	print(cout, "encrypted", ciphertext, n4);
-
-  int decryptedtext_len =decrypt(ciphertext,ciphertext_len,key,iv,plaintext);
-	print(cout, "decrypted", plaintext, n4);
   
+	//print(cout, "plaintext", plaintext, n4);
+  /* Encrypt the plaintext */
+  clock_t t=clock();
+  
+  int ciphertext_len = encrypt(plaintext, n4, key, iv, ciphertext);
+for (int i =0;i<COUNT;i++) encrypt(plaintext,n4,key,iv,ciphertext);
+	//print(cout, "encrypted", ciphertext, n4);
+  t= clock()-t;
+  cout<<"cipher time summery:\n"<<t<<endl;
+  t=clock();
+  int decryptedtext_len =decrypt(ciphertext,ciphertext_len,key,iv,plaintext);
+	//print(cout, "decrypted", plaintext, n4);
+  t= clock()-t;
+  cout<<"decryption summery:\n"<<t<<endl;
+
 	if(outputFile!=nullptr){
 		ofstream f(outputFile); // write out encrypted data
 		f<<"key: "<<key<<endl;
 		f<<"iv: "<<iv<<endl;
 	
-		print(f, "ciphertext", ciphertext, n4);
-		print(f, "plaintext", plaintext, n4);
+		//print(f, "ciphertext", ciphertext, n4);
+		//print(f, "plaintext", plaintext, n4);
 	}
   /* Clean up */
 	//  EVP_cleanup();
 	// ERR_free_strings();
-
+  totaltime= clock()-t;
+  cout<<"totaltime"<<totaltime<<endl;
   return 0;
 }	
