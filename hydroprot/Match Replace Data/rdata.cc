@@ -35,8 +35,9 @@ int main(int argc,char *argv[])
 		}
 		else
 		{
-			int l,c,n;
-			sscanf(vline.c_str(),"%d,%d,%d",&l,&c,&n);
+			int l,c;
+			string s;
+			sscanf(vline.c_str(),"%d,%d,%s",&l,&c,&s);
 			if((cline < l)&&i)
 			{
 				file << (fline.c_str()+i) << endl;

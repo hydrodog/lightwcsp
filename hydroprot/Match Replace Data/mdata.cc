@@ -1,26 +1,24 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-// #include <regex>
+#include <regex>
 
 using namespace std;
 
-#define SMATCH "<%= %>"
-
-bool match(string s)
-{
-	string m = SMATCH;
-	int size = m.size();
-	int i;
-	if(!s.size())
-		return false;
-	for(i=0; i<size; i++)
-	{
-		if(m[i]!=s[i])
-			return false;
-	}
-	return true;
-}
+// bool match(string s)
+// {
+// 	string m = SMATCH;
+// 	int size = m.size();
+// 	int i;
+// 	if(!s.size())
+// 		return false;
+// 	for(i=0; i<size; i++)
+// 	{
+// 		if(m[i]!=s[i])
+// 			return false;
+// 	}
+// 	return true;
+// }
 
 int main(int argc,char *argv[])
 {
@@ -40,30 +38,37 @@ int main(int argc,char *argv[])
 	ofstream outfixed("fixed.dat");
 	ofstream outvec("vec.dat");
 
-	string line,m;
-	m = SMATCH;
-	int size = m.size();
+	string line;
+	smatch sm;
 	int cline = 0;
-	int c = 0;
+	regex variable("\\{{2}\\s*(\\w+)\\s*\\}{2}");
 
 	while(getline(infile,line))
 	{
-		int i;
-		int q = 0;
-		for(i=0; i<line.size(); i++)
+		// if(regex_search(line,sm,variable))
+		// {
+		// 	outfixed << sm.prefix().str();
+		// 	outvec << cline << ',' << sm.position() << ',' << sm[1].str() << endl;
+		// 	outfixed << sm.suffix().str();
+		// }
+		// else
+		// 	outfixed << line;
+		regex_iterator<string::iterator> rit(line.begin(),line.end(),variable), aux, rend;
+		if(rit==rend)
 		{
-			if(line.size()-i<size)
-				outfixed << line[i];
-			else if((line[i]==m[0])&&(line[i+size-1]==m[size-1])&&match(line.c_str()+i))
-			{
-				outvec << cline << ',' << (i-q) << ',' << c << endl;
-				i+=size-1;
-				q+=size;
-				c++;
-			}
-			else
-				outfixed << line[i];
+			outfixed << line << endl;
+			cline++;
+			continue;
 		}
+		do
+		{
+			outvec << cline << ',' << rit->position() << ',' << (*rit)[1].str() << endl;
+			outfixed << rit->prefix().str();
+			aux=rit;
+			rit++;
+		}while(rit!=rend);
+		outfixed << aux->suffix().str();
+
 		cline++;
 		outfixed << endl;
 	}
