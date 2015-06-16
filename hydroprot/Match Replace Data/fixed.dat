@@ -7,8 +7,8 @@
 <tr><td></td><td></td></tr>
 <tr><td></td><td></td></tr>
 <tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
+{# This is a comment #}
+{%end%}
 </table>
 </body>
 </html>
