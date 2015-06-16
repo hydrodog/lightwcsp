@@ -1,32 +1,46 @@
 CPP = g++ -std=c++11
-OBJ = Config.o Logger.o MyStringBuffer.o RequestHandler.o FileSys.o server.o CspServlet.o
+OBJ = Config.o Logger.o HttpRequest.o FileSys.o Buffer.o server.o CspServlet.o InMemoryFileServlet.o FileServlet.o Bench.o Signal.o
 OPT = #-O3
 DEBUG = -g
 INCLUDE = -I include/
+#COMP=$(CPP) $(OPT) $(DEBUG) $(INCLUDE) -Wl,--no-as-needed
+COMP=$(CPP) $(OPT) $(DEBUG) $(INCLUDE) -pthread
 
-server: Config.o Logger.o MystringBuffer.o RequestHandler.o FileSys.o server.o CspServlet.o
-	$(CPP) $(OPT) $(DEBUG) $(OBJ) -o server
+server: $(OBJ)
+	$(CPP) $(OPT) $(DEBUG) $(OBJ) -pthread -o server
 
 Config.o: Config.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c Config.cc
-	
+	$(COMP) -c Config.cc
+
 FileSys.o: FileSys.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c FileSys.cc
+	$(COMP) -c FileSys.cc
 
 Logger.o: Logger.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c Logger.cc
+	$(COMP) -c Logger.cc
 
-MystringBuffer.o: MystringBuffer.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c MystringBuffer.cc
+HttpRequest.o: HttpRequest.cc include/HttpRequest.hh
+	$(COMP) -c HttpRequest.cc
 
-RequestHandler.o: RequestHandler.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c RequestHandler.cc
+CspServlet.o: CspServlet.cc include/HttpRequest.hh
+	$(COMP) -c CspServlet.cc
+
+InMemoryFileServlet.o: InMemoryFileServlet.cc include/HttpRequest.hh
+	$(COMP) -c InMemoryFileServlet.cc
+
+FileServlet.o: FileServlet.cc include/HttpRequest.hh
+	$(COMP) -c FileServlet.cc
+
+server.o: server.cc include/HttpRequest.hh
+	$(COMP) -c server.cc
+
+Buffer.o: Buffer.cc include/Buffer.hh
+	$(COMP) -c Buffer.cc
+
+Bench.o: Bench.cc
+	$(COMP) -c Bench.cc
+
+Signal.o:Signal.cc
+	$(COMP) -c Signal.cc
 	
-CspServlet.o: CspServlet.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c CspServlet.cc
-
-server.o: server.cc
-	$(CPP) $(INCLUDE) $(DEBUG) $(OPT) -c server.cc
-
 clean:
 	rm -rf *o server

@@ -26,7 +26,7 @@ void FileServlet::doGet(HttpRequest& req) {
     buf = new char[filelen];
     if (buf == nullptr){ //TODO: should be unnecessary
       cerr << "Memory error" << endl;
-      exit(2);
+      throw("Memory error in FileServlet");
     }
   }
 	// preload the header information into the buffer

@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <FileSys.hh>
+#include <iostream>
 using namespace std;
 
 InMemoryFileServlet::InMemoryFileServlet(struct dirent* entry) {
@@ -21,7 +22,7 @@ InMemoryFileServlet::InMemoryFileServlet(struct dirent* entry) {
     buf = new char[filelen];
     if (buf == nullptr){ //TODO: should be unnecessary
       cerr << "Memory error" << endl;
-      exit(2);
+      throw("Memory error in InMemoryFileServlet");
     }
   }
   // preload the header information into the buffer
