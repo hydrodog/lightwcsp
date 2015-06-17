@@ -12,7 +12,7 @@ server: $(OBJ)
 Config.o: Config.cc
 	$(COMP) -c Config.cc
 
-FileSys.o: FileSys.cc
+FileSys.o: FileSys.cc include/FileSys.hh
 	$(COMP) -c FileSys.cc
 
 Logger.o: Logger.cc

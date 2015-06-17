@@ -18,6 +18,7 @@ public:
   FileSys(const std::string& filedir) {
     dfs(filedir);
   }
+  void initMimeTypes();
   void update();
   ~FileSys();
   void encryption();
