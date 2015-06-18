@@ -14,6 +14,8 @@
 #include <cstring>
 #include <string>
 #include <CspServlet.hh>
+#include "openssl/ssl.h"
+#include "openssl/err.h"
 
 //#include <server.hh>
 using namespace std;
@@ -41,10 +43,8 @@ const char * HttpRequest::getNextToken(int &cursor, int &tokenLength) {
   return data+start;
 }
 
-HttpRequest::HttpRequest(const int socketId,const char baseDir[]) : socketId(socketId),
-  baseDir(baseDir), baseDirLen(strlen(baseDir)) {
+void HttpRequest::parse() {
   int currentTokenLength = 0;
-  int dataSize = recv(socketId, data, BUFFER_SIZE, 0);
   int cursor = 0;
   const char * currentToken = getNextToken(cursor, currentTokenLength);
   if (strncmp(currentToken, "POST", 4) == 0) {
@@ -96,3 +96,14 @@ HttpRequest::HttpRequest(const int socketId,const char baseDir[]) : socketId(soc
 #endif
 
 
+void HttpRequest::send(const char* buf, size_t buflen) {
+	::send(socketId, buf, buflen, 0);
+}
+
+void HttpsRequest::send(const char* buf, size_t buflen) {
+	//	SSL_write(ssl, //f->getBuf(), f->getFileLen(), 0);
+}
+
+void HttpsRequest::read() {
+	dataSize = SSL_read(ssl, data, BUFFER_SIZE);
+}

@@ -14,18 +14,20 @@
 #include <Buffer.hh>
 #include <FileSys.hh>
 #include <sys/socket.h>
+typedef struct ssl_st SSL;
 
 enum httpMethod {
 	GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, UNIMPLEMENTED
 };
 
 class HttpRequest {
-private:
-	int socketId;       // socket id of the connection
+protected:
 	static FileSys FS;
+	int socketId;
 	Buffer b;           // every request has a buffer to write back to
   const char* baseDir;
   int baseDirLen;
+	int dataSize;
   const static int BUFFER_SIZE = 8192;
   char data[BUFFER_SIZE]; // buffer for incoming request (static size)
 	                        //8k is probably enough for most incoming
@@ -47,7 +49,8 @@ private:
   }
   const char* getNextToken(int &cursor, int &tokenLength);
 public:
-  HttpRequest(const int socketId, const char baseDir[]);
+  HttpRequest(const char baseDir[], int client) : baseDir(baseDir), socketId(client) {}
+	void parse();
   int getBodyLength() const { return bodyLength; }
   int getUrlLength() const { return urlLength; }
   const char * getBody() const { return body; }
@@ -59,9 +62,19 @@ public:
 	Buffer& getOutput(){
 		return b;
 	}
-	void send(const char* buf, size_t buflen) {
-		::send(socketId, buf, buflen, 0);
-  }
+	void read() {
+		dataSize = recv(socketId, data, BUFFER_SIZE, 0);
+	}
+	virtual void send(const char* buf, size_t buflen);
+};
+
+class HttpsRequest : public HttpRequest {
+private:
+	SSL* ssl;
+public:
+	HttpsRequest(const char baseDir[], int client, SSL* ssl) : HttpRequest(baseDir, client), ssl(ssl) {}
+	void read();
+	void send(const char* buf, size_t buflen);
 };
 
 #endif //HTTP_REQUEST_HH_

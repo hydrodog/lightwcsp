@@ -7,7 +7,7 @@ INCLUDE = -I include/
 COMP=$(CPP) $(OPT) $(DEBUG) $(INCLUDE) -pthread
 
 server: $(OBJ)
-	$(CPP) $(OPT) $(DEBUG) $(OBJ) -pthread -o server
+	$(CPP) $(OPT) $(DEBUG) $(OBJ) -pthread -o server -lssl -lcrypto -ldl
 
 Config.o: Config.cc
 	$(COMP) -c Config.cc
@@ -41,6 +41,6 @@ Bench.o: Bench.cc
 
 Signal.o:Signal.cc
 	$(COMP) -c Signal.cc
-	
+
 clean:
 	rm -rf *o server

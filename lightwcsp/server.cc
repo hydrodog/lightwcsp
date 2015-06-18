@@ -19,6 +19,9 @@
 #include <server.hh>
 #include <FileSys.hh>
 #include "Signal.hh"
+#include <strings.h>
+#include "openssl/ssl.h"
+#include "openssl/err.h"
 
 #define SERVER_STRING "Server: lwc/1\r\n"
 #define PORT "4040"  // the port users will be connecting to
@@ -51,12 +54,6 @@ inline void *get_in_addr(struct sockaddr *sa) {
 	return &(((struct sockaddr_in6*) sa)->sin6_addr);
 }
 #endif
-
-void accept_request(int client) {
-  HttpRequest req(client, BASEDIR);
-  close(client);
-  //	cout << "End thread" << endl;
-}
 
 char NOT_FOUND[] =
  "HTTP/1.1 404 NOT FOUND\r\n"
@@ -155,45 +152,139 @@ void unimplemented(int client) {
 	send(client, buf, strlen(buf), 0);
 }
 
+ushort httpPort;
+ushort httpsPort;
 
-int main(int argc, char* argv[]) {
-	setupSignal();
+const int BUFFER_SIZE = 8192;
+void acceptHttpRequest(int client) {
+  HttpRequest req(BASEDIR, client);
+	req.read();
+	req.parse();
+  close(client);
+  //	cout << "End thread" << endl;
+}
+
+void http() {
   int serverSock = -1;
-  u_short port = 0;
-  int clientSock = 0;
+  serverSock = startup(&httpPort);
+  cerr << "lwcsp running on port " << httpPort << '\n';
   struct sockaddr_in clientName;
   socklen_t clientNameLen = sizeof(clientName);
-  thread threadPool[THREAD_POOL_SIZE];
-  
-  serverSock = startup(&port);
-  cerr << "lwcsp running on port " << port << '\n';
-  int nextThread = 0;
-
-  //  FileSys FS;   // pre-read all files for speed
-	              //    (Traverse all files under htdocs)
-  //  HttpServlet::init(); // initialize Servlet dispatch
+  int clientSock = 0;
   while (clientSock >= 0) {
     clientSock = accept(serverSock, (struct sockaddr *) &clientName,
 			 &clientNameLen);
     if (clientSock >= 0) {
-      while(threadPool[nextThread].joinable()){
-				nextThread++;
-      }
-      threadPool[nextThread++] = thread(accept_request, clientSock);
-      if (nextThread >= THREAD_POOL_SIZE)
-	nextThread = 0;
-      /*
-	#ifdef mutithread
-	  thread(accept_request, client_sock,&FS);
-	#else
-	  accept_request(client_sock,&FS);
-	#endif
-      */
+      thread(acceptHttpRequest, clientSock);
     } else {
       error_die("accept");
     }
   }
   close(serverSock);
+}
+
+void showCerts(SSL* ssl) {
+	X509 *cert = SSL_get_peer_certificate(ssl); // Get certificates (if available)
+	char *line; 
+	if ( cert != NULL )
+	{
+		printf("Server certificates:\n");
+		line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
+		printf("Subject: %s\n", line);
+		free(line);
+		line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
+		printf("Issuer: %s\n", line);
+		free(line);
+		X509_free(cert);
+	}
+	else
+		printf("No certificates.\n");
+}
+
+SSL_CTX* ctx;
+const int FAIL = -1;
+void acceptHttpsRequest(int client) {
+	SSL* ssl = SSL_new(ctx);              // get new SSL state with context
+  SSL_set_fd(ssl, client);              // connect it to the client socket
+	if ( SSL_accept(ssl) == FAIL ) {      // do SSL-protocol accept
+		ERR_print_errors_fp(stderr);
+		return;
+	}
+	// if successful, show certs (remove for speed)
+	showCerts(ssl);        // get any certificates
+  HttpsRequest req(BASEDIR, client, ssl);  // create the bare-bones https request
+	req.read(); //read the data from the ssl socket
+	req.parse(); // call generic parse just like non-https
+  SSL_free(ssl);
+	close(client);
+  //	cout << "End thread" << endl;
+}
+
+int openListener(int port) {
+	int sd;
+	struct sockaddr_in addr;
+ 
+	sd = socket(PF_INET, SOCK_STREAM, 0);
+	//TODO: FIX THISS BZERO!!!
+	//	bzero(&addr, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = INADDR_ANY;
+	if ( bind(sd, (struct sockaddr*)&addr, sizeof(addr)) != 0 ) {
+		perror("can't bind port");
+		abort();
+	}
+	if ( listen(sd, 10) != 0 ) {
+		perror("Can't configure listening port");
+		abort();
+	}
+	return sd;
+}
+
+SSL_CTX* InitServerCTX() {
+	OpenSSL_add_all_algorithms();  /* load & register all cryptos, etc. */
+	SSL_load_error_strings();   /* load all error messages */
+	const	SSL_METHOD *method = SSLv3_server_method();  /* create new server-method instance */
+	ctx = SSL_CTX_new(method);   /* create new context from method */
+	if ( ctx == NULL ) {
+		ERR_print_errors_fp(stderr);
+		abort();
+	}
+	return ctx;
+}
+
+void https() {
+	SSL_library_init();
+	SSL_CTX* ctx = InitServerCTX();
+	//LoadCertificates(ctx, "mycert.pem", "mycert.pem"); /* load certs */
+  int serverSock = -1;
+  serverSock = openListener(httpsPort);// SSL open
+  cerr << "lwcsp https running on port " << httpsPort << '\n';
+	int clientSock = -1;
+  struct sockaddr_in clientName;
+  socklen_t clientNameLen = sizeof(clientName);
+  while (clientSock >= 0) {
+    clientSock = accept(serverSock, (struct sockaddr *) &clientName,
+			 &clientNameLen);
+    if (clientSock >= 0) {
+			thread(acceptHttpsRequest, clientSock);
+    } else {
+      error_die("accept");
+    }
+  }
+  close(serverSock);
+//TODO: maybe more cleanup code for ssl???
+}
+
+int main(int argc, char* argv[]) {
+	setupSignal();
+  u_short port = 0;
+  thread threadPool[THREAD_POOL_SIZE];
+  int nextThread = 0;
+
+	thread t1(http);
+	thread t2(https);
+
   return 0;
 }
 
