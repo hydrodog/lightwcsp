@@ -13,12 +13,9 @@ int main(int argc, char* argv[])
 	// for(int i=0;i<n;i++)
 	// 	s = convert((d+=(0.1*i)),pr);
 	// return 0;
-	int d = 1;
+	long long d = 1;
 	char *s;
 	for(int i=0;i<n;i++)
-	{
 		s = convert(d*=-1000);
-		cout << s << endl;
-	}
 	return 0;
 }
