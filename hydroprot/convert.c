@@ -21,7 +21,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 #define DIGPREC      17            /* max # of significant digits */
 #define ECVT  false
 #define FCVT  true
-static char digstr[DIGMAX + 1 + 1];    /* +1 for end of string         */
+static char digstr[DIGMAX + 2];    /* +1 for end of string         */
 
 static char ret[DIGMAX+2];
 
@@ -32,7 +32,7 @@ litoa(long long i)
 {
   /* Room for INT_DIGITS digits, - and '\0' */
   // static char buf[INT_DIGITS + 2];
-  char *p = ret + INT_DIGITS + 1;	/* points to terminating '\0' */
+  char *p = ret + INT_DIGITS + 2;	/* points to terminating '\0' */
   if (i >= 0) {
     do {
       *--p = '0' + (i % 10);
