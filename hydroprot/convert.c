@@ -17,14 +17,22 @@ You should have received a copy of the GNU General Public License along
 with groff; see the file COPYING.  If not, write to the Free Software
 Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
+#define DIGMAX       30            /* max # of digits in string */
+#define DIGPREC      17            /* max # of significant digits */
+#define ECVT  false
+#define FCVT  true
+static char digstr[DIGMAX + 1 + 1];    /* +1 for end of string         */
+
+static char ret[DIGMAX+2];
+
 #define INT_DIGITS 19		/* enough for 64 bit integer */
 
 char *
-itoa(int i)
+litoa(long long i)
 {
   /* Room for INT_DIGITS digits, - and '\0' */
-  static char buf[INT_DIGITS + 2];
-  char *p = buf + INT_DIGITS + 1;	/* points to terminating '\0' */
+  // static char buf[INT_DIGITS + 2];
+  char *p = ret + INT_DIGITS + 1;	/* points to terminating '\0' */
   if (i >= 0) {
     do {
       *--p = '0' + (i % 10);
@@ -42,13 +50,28 @@ itoa(int i)
   return p;
 }
 
+char *
+ulitoa(unsigned long long i)
+{
+  /* Room for INT_DIGITS digits, - and '\0' */
+  // static char buf[INT_DIGITS + 3];
+  char *p = ret + INT_DIGITS + 2;	/* points to terminating '\0' */
+  do {
+    *--p = '0' + (i % 10);
+    i /= 10;
+  } while (i != 0);
+  return p;
+}
+
 // http://sourcecodebrowser.com/linux86/0.16.17/ecvt_8c.html
 
-#define DIGMAX       30            /* max # of digits in string */
-#define DIGPREC      17            /* max # of significant digits */
-#define ECVT  false
-#define FCVT  true
-static char digstr[DIGMAX + 1 + 1];    /* +1 for end of string         */
+// #define DIGMAX       30            /* max # of digits in string */
+// #define DIGPREC      17             max # of significant digits 
+// #define ECVT  false
+// #define FCVT  true
+// static char digstr[DIGMAX + 1 + 1];    /* +1 for end of string         */
+
+// static char ret[DIGMAX+2];
 
     /* +1 in case rounding adds     */
     /* another digit                */
@@ -171,8 +194,6 @@ ecvt(double val, int ndig, int *pdecpt,int *psign)
 #include <iostream>
 using namespace std;
 
-static char ret[DIGMAX+2];
-
 char *
 convert(double val,int prec)
 {
@@ -199,4 +220,34 @@ convert(double val,int prec)
 		ret[0] = '0'; ret [1] = '\0';
 		return ret;
 	}
+}
+
+char *
+convert(unsigned long long val)
+{
+	return ulitoa(val);
+}
+
+char *
+convert(unsigned int val)
+{
+	return ulitoa(val);
+}
+
+char *
+convert(unsigned long val)
+{
+	return ulitoa(val);
+}
+
+char *
+convert(long long val)
+{
+	return litoa(val);
+}
+
+char *
+convert(int val)
+{
+	return litoa(val);
 }

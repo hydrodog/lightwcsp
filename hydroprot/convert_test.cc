@@ -16,6 +16,9 @@ int main(int argc, char* argv[])
 	int d = 1;
 	char *s;
 	for(int i=0;i<n;i++)
-		s = itoa(d+=(-10*i));
+	{
+		s = convert(d*=-1000);
+		cout << s << endl;
+	}
 	return 0;
 }
