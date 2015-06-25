@@ -9,9 +9,6 @@ static char digstr[DIGMAX + 2];    /* +1 for end of string         */
 
 void fastlltoa(char **buff, long long i)
 {
-  // Room for INT_DIGITS digits, - and '\0'
-  // static char buf[INT_DIGITS + 2];
-
   char *p = *buff;
 
 	if(i < 0)
