@@ -1,9 +1,9 @@
 #include <iostream>
-#include "convert.c"
+using namespace std;
+#include "convert.hh"
 
 #define pr 100
 
-using namespace std;
 
 int main(int argc, char* argv[])
 {
@@ -14,8 +14,12 @@ int main(int argc, char* argv[])
 	// 	s = convert((d+=(0.1*i)),pr);
 	// return 0;
 	long long d = 1;
-	char *s;
+	char *s = new char[23];
 	for(int i=0;i<n;i++)
-		s = convert(d*=-1000);
+	{
+		convert(&s,d*=-1000);
+		cout << d << ' ' << s << endl;
+	}
+	delete[] s;
 	return 0;
 }
