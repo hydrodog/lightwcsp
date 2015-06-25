@@ -7,7 +7,7 @@ static char digstr[DIGMAX + 2];    /* +1 for end of string         */
 // {
 // }
 
-void fastlltoa(char **buff, long long i)
+int fastlltoa(char **buff, long long i)
 {
   char *p = *buff;
 
@@ -20,7 +20,7 @@ void fastlltoa(char **buff, long long i)
   if(!i)
   {
   	p[0] = '0'; p[1] = '\0';
-  	return;
+  	return 1;
   }
 
   short aux;
@@ -54,16 +54,17 @@ void fastlltoa(char **buff, long long i)
   	p += 4;
   }
   *(p) = '\0';
+  return (p-*buff);
 }
 
-void fastulltoa(char **buff, unsigned long long i)
+int fastulltoa(char **buff, unsigned long long i)
 {
 	char *p = *buff;
 
   if(!i)
   {
   	p[0] = '0'; p[1] = '\0';
-  	return;
+  	return 1;
   }
 
   short aux;
@@ -97,6 +98,7 @@ void fastulltoa(char **buff, unsigned long long i)
   	p += 4;
   }
   *(p)='\0';
+  return (p-*buff);
 }
 
 // http://sourcecodebrowser.com/linux86/0.16.17/ecvt_8c.html
@@ -257,32 +259,27 @@ using namespace std;
 // 	}
 // }
 
-void convert(char **buff, unsigned long long val)
+int convert(char **buff, unsigned long long val)
 {
-	fastulltoa(buff,val);
-	return;
+	return fastulltoa(buff,val);
 }
 
-void convert(char **buff, unsigned int val)
+int convert(char **buff, unsigned int val)
 {
-	fastulltoa(buff,val);
-	return;
+	return fastulltoa(buff,val);
 }
 
-void convert(char **buff, unsigned long val)
+int convert(char **buff, unsigned long val)
 {
-	fastulltoa(buff,val);
-	return;
+	return fastulltoa(buff,val);
 }
 
-void convert(char **buff, long long val)
+int convert(char **buff, long long val)
 {
-	fastlltoa(buff,val);
-	return;
+	return fastlltoa(buff,val);
 }
 
-void convert(char **buff, int val)
+int convert(char **buff, int val)
 {
-	fastlltoa(buff,val);
-	return;
+	return fastlltoa(buff,val);
 }

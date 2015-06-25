@@ -33,9 +33,9 @@ const static double negtab[] =
 const static double postab[] =
     { 1e+256, 1e+128, 1e+64, 1e+32, 1e+16, 1e+8, 1e+4, 1e+2, 1e+1 };
 
-void fastlltoa(char **buff, long long i);
+int fastlltoa(char **buff, long long i);
 
-void fastulltoa(char **buff, unsigned long long i);
+int fastulltoa(char **buff, unsigned long long i);
 
 static char *_cvt(bool cnvflag, double val, int ndig, int *pdecpt, int *psign);
 
@@ -43,15 +43,15 @@ extern "C" char *ecvt(double val, int ndig, int *pdecpt,int *psign);
 
 // void convert(char **buff, double val, int prec);
 
-void convert(char **buff, unsigned long long val);
+int convert(char **buff, unsigned long long val);
 
-void convert(char **buff, unsigned int val);
+int convert(char **buff, unsigned int val);
 
-void convert(char **buff, unsigned long val);
+int convert(char **buff, unsigned long val);
 
-void convert(char **buff, long long val);
+int convert(char **buff, long long val);
 
-void convert(char **buff, int val);
+int convert(char **buff, int val);
 
 // for (int i = 0; i < SIZE; i++) { 
 //   digits[i] =

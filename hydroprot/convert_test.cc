@@ -17,8 +17,8 @@ int main(int argc, char* argv[])
 	char *s = new char[23];
 	for(int i=0;i<n;i++)
 	{
-		convert(&s,d*=-1000);
-		cout << d << ' ' << s << endl;
+		int j = convert(&s,d*=-1000);
+		cout << j << ' ' << d << ' ' << s << endl;
 	}
 	delete[] s;
 	return 0;
