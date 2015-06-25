@@ -41,7 +41,7 @@ static char *_cvt(bool cnvflag, double val, int ndig, int *pdecpt, int *psign);
 
 extern "C" char *ecvt(double val, int ndig, int *pdecpt,int *psign);
 
-// int convert(char **buff, double val);
+int convert(char **buff, double val, int prec);
 
 int convert(char **buff, unsigned long long val);
 

@@ -1,4 +1,5 @@
-// #include <cmath>
+#include <cmath>
+#include <string>
 #include "convert.hh"
 
 static char digstr[DIGMAX + 2];    /* +1 for end of string         */
@@ -229,36 +230,32 @@ ecvt(double val, int ndig, int *pdecpt,int *psign)
    return _cvt(ECVT, val, ndig, pdecpt, psign);
 }
 
-#include <cmath>
-#include <iostream>
-using namespace std;
-
-// void convert(char **buff, double val,int prec)
-// {
-// 	unsigned int d = (val < 0) ? (-val) : val;
-// 	// cout << d << endl;
-// 	if(d)
-// 	{
-// 		int dec,sign;
-// 		d = ceil(log10(d));
-// 		// cout << d << endl;
-// 		char *s = ecvt(val,d+prec,&dec,&sign);
-// 		// sign = sign ? 1 : 0;
-// 		// char r[d+sign+prec+2];
-// 		if(sign)
-// 			ret[0] = '-';
-// 		memcpy(ret+sign,s,dec);
-// 		ret[dec+sign] = '.';
-// 		memcpy(ret+dec+sign+1,s+dec,prec);
-// 		ret[d+sign+prec+1] = '\0';
-// 		return ret;
-// 	}
-// 	else
-// 	{
-// 		ret[0] = '0'; ret [1] = '\0';
-// 		return ret;
-// 	}
-// }
+int convert(char **buff, double val,int prec=2)
+{
+	unsigned int d = (val < 0) ? (-val) : val;
+	char *p = *buff;
+	if(d)
+	{
+		int dec,sign;
+		d = ceil(log10(d));
+		// cout << d << endl;
+		char *s = ecvt(val,d+prec,&dec,&sign);
+		// sign = sign ? 1 : 0;
+		// char r[d+sign+prec+2];
+		if(sign)
+			p[0] = '-';
+		memcpy(p+sign,s,dec);
+		p[dec+sign] = '.';
+		memcpy(p+dec+sign+1,s+dec,prec);
+		p[d+sign+prec+1] = '\0';
+		return d+prec;
+	}
+	else
+	{
+		p[0] = '0'; p [1] = '\0';
+		return 1;
+	}
+}
 
 int convert(char **buff, unsigned long long val)
 {
