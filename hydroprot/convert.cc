@@ -15,7 +15,7 @@ void fastlltoa(char **buff, long long i)
   {
   	p[0] = '-';
   	p++;
-  	i *= -1;
+  	i *= -1;														// doesn't work with -9223372036854775808
   }
   if(!i)
   {
