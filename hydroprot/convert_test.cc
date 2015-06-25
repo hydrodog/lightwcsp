@@ -1,6 +1,6 @@
 #include <iostream>
-using namespace std;
 #include "convert.hh"
+using namespace std;
 
 #define pr 100
 

@@ -1,3 +1,4 @@
+// #include <cmath>
 #include "convert.hh"
 
 static char digstr[DIGMAX + 2];    /* +1 for end of string         */
