@@ -51,6 +51,8 @@ int convert(char **buff, unsigned long val);
 
 int convert(char **buff, long long val);
 
+int convert(char **buff, long val);
+
 int convert(char **buff, int val);
 
 // for (int i = 0; i < SIZE; i++) { 

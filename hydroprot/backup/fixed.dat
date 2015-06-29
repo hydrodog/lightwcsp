@@ -1,9 +1,9 @@
-65
-9
-19
-9
-28
--35
+6,8,str
+6,24,file
+7,8,jay
+7,24,name
+8,17,ok
+-
 <html>
 <head>
 <title>test</title>
@@ -13,6 +13,8 @@
 <tr><td></td><td></td></tr>
 <tr><td></td><td></td></tr>
 <tr><td></td><td></td></tr>
+{# This is a comment #}
+{%end%}
 </table>
 </body>
 </html>
