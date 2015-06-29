@@ -15,6 +15,7 @@
 #include <iomanip>
 // #include <cstdio>
 #include <fstream>
+#include "convert.hh"
 
 using namespace std;
 
@@ -136,17 +137,66 @@ int main(int argc,char *argv[])
 					j++;
 			for(; var[i] != '\n'; i++);
 			
-			char *text = var + i + 1;
+			char *text = var + i + 1;		// iterates through the text (after variables positions)
 
 			i = 0;
-			char *aux = var;
+			char *auxv = var;						// iterates through the variables positions
+			char *auxb = buff;					// iterates through the received message (from server)
+			char *auxw = new char[50];	// buffer to receive converted string
 			for(int k = 0; k < j; k++)
 			{
-				sscanf(aux,"%d",&i);
-				aux += numbersize(i) + 1;
+				sscanf(auxv,"%d",&i);
+				auxv += numbersize(i) + 1;
 				write(outfile,text,i);
 				text += i;
+				switch(*auxb++)
+				{
+					case 0:			// no type
+						break;
+					case 1:			// int
+						i = convert(auxw,*((int*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(int);
+						break;
+					case 2:			// unsigned int
+						i = convert(auxw,*((unsigned int*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(unsigned int);
+						break;
+					case 3:			// long
+						i = convert(auxw,*((long*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(long);
+						break;
+					case 4:			// long long
+						i = convert(auxw,*((long long*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(long long);
+						break;
+					case 5:			// unsigned long long
+						i = convert(auxw,*((unsigned long long*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(unsigned long long);
+						break;
+					case 6:			// float
+						i = convert(auxw,*((float*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(float);
+						break;
+					case 7:			// double
+						i = convert(auxw,*((double*)auxb);
+						write(outfile,auxw,i);
+						auxb += sizeof(double);
+						break;
+					case 8:			// long double
+						break;
+					case 9:			// char
+						break;
+					default:
+						error_die("Data type unknown");
+				}
 			}
+			delete[] auxw;
 			delete[] var;
 		}
 		close(infile);
