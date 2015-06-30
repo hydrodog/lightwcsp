@@ -117,7 +117,7 @@ int main(int argc,char *argv[])
 			error_die("No input file");
 
 		int infile = open(argv[3],O_RDONLY);
-		FILE* outfile = fopen("output.dat","w");
+		int outfile = open("output.dat",O_WRONLY|O_CREAT,0777);
 		
 		if(!infile)
 			error_die("Error opening input file");
@@ -151,7 +151,7 @@ int main(int argc,char *argv[])
 			{
 				sscanf(auxv,"%d",&i);
 				auxv += numbersize(i) + 1;
-				write(fileno(outfile),text,i);
+				write(outfile,text,i);
 				text += i;
 				switch(*auxb++)
 				{
@@ -159,37 +159,37 @@ int main(int argc,char *argv[])
 						break;
 					case 1:			// int
 						i = convert(&auxw,*((int*)auxb));
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(int);
 						break;
 					case 2:			// unsigned int
 						i = convert(&auxw,*((unsigned int*)auxb));
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(unsigned int);
 						break;
 					case 3:			// long
 						i = convert(&auxw,*((long*)auxb));
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(long);
 						break;
 					case 4:			// long long
 						i = convert(&auxw,*((long long*)auxb));
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(long long);
 						break;
 					case 5:			// unsigned long long
 						i = convert(&auxw,*((unsigned long long*)auxb));
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(unsigned long long);
 						break;
 					case 6:			// float
 						i = convert(&auxw,*((float*)auxb),3);
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(float);
 						break;
 					case 7:			// double
 						i = convert(&auxw,*((double*)auxb),3);
-						write(fileno(outfile),auxw,i);
+						write(outfile,auxw,i);
 						auxb += sizeof(double);
 						break;
 					case 8:			// long double
@@ -205,13 +205,13 @@ int main(int argc,char *argv[])
 				cout << "Non negative value" << endl;
 			else
 				i *= -1;
-			write(fileno(outfile),text,i);
+			write(outfile,text,i);
 			
 			delete[] auxw;
 			delete[] var;
 		}
 		close(infile);
-		fclose(outfile);
+		close(outfile);
 
 	}
 	// else
