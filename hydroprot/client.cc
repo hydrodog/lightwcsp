@@ -117,7 +117,7 @@ int main(int argc,char *argv[])
 			error_die("No input file");
 
 		int infile = open(argv[3],O_RDONLY);
-		int outfile = open("output.dat",O_WRONLY|O_CREAT,0777);
+		int outfile = open("output.dat",O_WRONLY|O_CREAT,0666);
 		
 		if(!infile)
 			error_die("Error opening input file");
