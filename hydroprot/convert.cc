@@ -257,6 +257,11 @@ int convert(char **buff, double val,int prec=2)
 	}
 }
 
+int convert(char **buff, float val,int prec=2)
+{
+	return convert(buff,double(val),prec);
+}
+
 int convert(char **buff, unsigned long long val)
 {
 	return fastulltoa(buff,val);

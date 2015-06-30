@@ -1,0 +1,12 @@
+<html>
+<head>
+<title>test</title>
+</head>
+<body>
+<table>
+<tr><td>325</td><td>223314</td></tr>
+<tr><td>22.331</td><td>2.233</td></tr>
+<tr><td></td><td>-223314</td></tr>
+</table>
+</body>
+</html>

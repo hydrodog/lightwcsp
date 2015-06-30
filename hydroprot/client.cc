@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -116,7 +117,7 @@ int main(int argc,char *argv[])
 			error_die("No input file");
 
 		int infile = open(argv[3],O_RDONLY);
-		int outfile = open("output.dat",O_WRONLY);
+		FILE* outfile = fopen("output.dat","w");
 		
 		if(!infile)
 			error_die("Error opening input file");
@@ -133,10 +134,13 @@ int main(int argc,char *argv[])
 
 			int i,j;
 			for(i = j = 0; var[i] != '-'; i++)
+			{
 				if(var[i]=='\n')
 					j++;
-			for(; var[i] != '\n'; i++);
-			
+			}
+
+			for(; var[i] != '\n'; i++)
+				;
 			char *text = var + i + 1;		// iterates through the text (after variables positions)
 
 			i = 0;
@@ -147,45 +151,45 @@ int main(int argc,char *argv[])
 			{
 				sscanf(auxv,"%d",&i);
 				auxv += numbersize(i) + 1;
-				write(outfile,text,i);
+				write(fileno(outfile),text,i);
 				text += i;
 				switch(*auxb++)
 				{
 					case 0:			// no type
 						break;
 					case 1:			// int
-						i = convert(auxw,*((int*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((int*)auxb));
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(int);
 						break;
 					case 2:			// unsigned int
-						i = convert(auxw,*((unsigned int*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((unsigned int*)auxb));
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(unsigned int);
 						break;
 					case 3:			// long
-						i = convert(auxw,*((long*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((long*)auxb));
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(long);
 						break;
 					case 4:			// long long
-						i = convert(auxw,*((long long*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((long long*)auxb));
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(long long);
 						break;
 					case 5:			// unsigned long long
-						i = convert(auxw,*((unsigned long long*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((unsigned long long*)auxb));
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(unsigned long long);
 						break;
 					case 6:			// float
-						i = convert(auxw,*((float*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((float*)auxb),3);
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(float);
 						break;
 					case 7:			// double
-						i = convert(auxw,*((double*)auxb);
-						write(outfile,auxw,i);
+						i = convert(&auxw,*((double*)auxb),3);
+						write(fileno(outfile),auxw,i);
 						auxb += sizeof(double);
 						break;
 					case 8:			// long double
@@ -196,16 +200,23 @@ int main(int argc,char *argv[])
 						error_die("Data type unknown");
 				}
 			}
+			sscanf(auxv,"%d",&i);
+			if(i >= 0)
+				cout << "Non negative value" << endl;
+			else
+				i *= -1;
+			write(fileno(outfile),text,i);
+			
 			delete[] auxw;
 			delete[] var;
 		}
 		close(infile);
-		close(outfile);
+		fclose(outfile);
 
 	}
-	else
-	{
-	}
+	// else
+	// {
+	// }
 
 
 	close(sockfd);
