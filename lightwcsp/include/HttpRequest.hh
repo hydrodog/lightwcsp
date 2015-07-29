@@ -14,6 +14,7 @@
 #include <Buffer.hh>
 #include <FileSys.hh>
 #include <sys/socket.h>
+#include "openssl/ssl.h"
 typedef struct ssl_st SSL;
 
 enum httpMethod {
@@ -62,19 +63,24 @@ public:
 	Buffer& getOutput(){
 		return b;
 	}
-	void read() {
+	virtual void read() {
 		dataSize = recv(socketId, data, BUFFER_SIZE, 0);
 	}
 	virtual void send(const char* buf, size_t buflen);
 };
 
-class HttpsRequest : public HttpRequest {
-private:
-	SSL* ssl;
-public:
-	HttpsRequest(const char baseDir[], int client, SSL* ssl) : HttpRequest(baseDir, client), ssl(ssl) {}
-	void read();
-	void send(const char* buf, size_t buflen);
+
+class HttpsRequest:public HttpRequest{
+	SSL *ssl;
+public: 
+	HttpsRequest(SSL* ssl, const int client);
+	~HttpsRequest();
+	int recv(){
+		dataSize = SSL_read(ssl, data, BUFFER_SIZE);
+	}
+	void send(const char* buf, size_t buflen){
+		SSL_write(ssl, buf, buflen);
+	}
 };
 
 #endif //HTTP_REQUEST_HH_
