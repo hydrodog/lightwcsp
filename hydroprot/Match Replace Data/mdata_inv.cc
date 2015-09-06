@@ -37,28 +37,29 @@ int main(int argc,char *argv[])
 		regex_iterator<char*> rit( fr, fr+buff.st_size, variable );
 		regex_iterator<char*> rend;
 
-		int i = 0;
-		char *s = new char[26];
-		s[0] = '-'; s++;
+		int lengths = 0;
+		int si = 0;
+		// unsigned int positions[POS], q = 0;
+		// positions[q++] = 0; positions[q++] = 0;
+		char *s = new char[25];
 
 
+		fprintf(out,"\n-\n");
 		while(rit!=rend)
 		{
-			i = convert(&s,rit->prefix().length());
-			s[i] = '\n';
-			write(fileno(out),s,i+1);
-			fprintf(out,"%s",rit->prefix().str().c_str());
-			i = rit->position() + rit->length();
+			// positions[q++] = rit->position();
+			si += write(fileno(out),rit->prefix().str().c_str(),rit->prefix().length());
+			convert(&s,rit->position() - lengths);
+			fprintf(out,"%s\n",s);
+			lengths += /*positions[q++] = */rit->length();
 			rit++;
 		}
-		if(i)
-		{
-			fprintf(out,"%s",fr+i);
-			i = convert(&s,buff.st_size - i);
-			s[i] = '\n'; s--;
-			write(fileno(out),s,i+2);
-		}
 		delete[] s;
+		write(fileno(out),fr+si+lengths,buff.st_size-si-lengths);
+
+		// for(int i=2; i<q; i+=2)
+		// 	write(fileno(out),fr+positions[i-2]+positions[i-1],positions[i]-positions[i-2]-positions[i-1]);
+		// write(fileno(out),fr+positions[q-1]+positions[q-2],buff.st_size-positions[q-1]-positions[q-2]);
 
 		fclose(out);
 	}

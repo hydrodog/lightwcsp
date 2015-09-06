@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -15,6 +16,7 @@
 #include <iomanip>
 // #include <cstdio>
 #include <fstream>
+#include "convert.hh"
 
 using namespace std;
 
@@ -23,6 +25,7 @@ using namespace std;
 #define PORT "2000"
 #define BACKLOG 10
 #define BUFFSIZE 1024
+#define VARSIZE 32
 
 struct addrinfo *result;
 int sockfd;
@@ -39,6 +42,20 @@ void error_die(const char *s)
 {
 	perror(s);
 	exit(1);
+}
+
+unsigned int numbersize(int n)
+{
+	if(n<0)
+		n *= -1;
+	if(n<10)
+		return 1;
+	else if(n<100)
+		return 2;
+	else if(n<1000)
+		return 3;
+	else
+		return 3*numbersize(n/1000);
 }
 
 int main(int argc,char *argv[])
@@ -90,84 +107,121 @@ int main(int argc,char *argv[])
 
 	if(write(sockfd,&ch,sizeof(ch)) < 0)
 		error_die("Error writing to socket");
+	if(read(sockfd,buff,BUFFSIZE - 1) < 0)
+		error_die("Error reading from socket");
 	if(ch)
 	{
-		if(read(sockfd,buff,BUFFSIZE - 1) < 0)
-			error_die("Error reading from socket");
-		sscanf(buff,"%f,%f,%f,%f,%f,%f,%f,%f,%f",v,v+1,v+2,v+3,v+4,v+5,v+6,v+7,v+8);
+		struct stat finfo;
+
+		if(argc < 4)
+			error_die("No input file");
+
+		int infile = open(argv[3],O_RDONLY);
+		int outfile = open("output.dat",O_WRONLY|O_CREAT,0666);
+		
+		if(!infile)
+			error_die("Error opening input file");
+
+		else if(fstat(infile,&finfo))
+			error_die("Error getting file's info");
+
+		else
+		{
+			char *var = new char[finfo.st_size+1];
+			if(read(infile,var,finfo.st_size) < 0)
+				error_die("Error reading input file");
+			var[finfo.st_size] = '\0';
+
+			int i,j;
+			for(i = j = 0; var[i] != '-'; i++)
+			{
+				if(var[i]=='\n')
+					j++;
+			}
+
+			for(; var[i] != '\n'; i++)
+				;
+			char *text = var + i + 1;		// iterates through the text (after variables positions)
+
+			i = 0;
+			char *auxv = var;						// iterates through the variables positions
+			char *auxb = buff;					// iterates through the received message (from server)
+			char *auxw = new char[50];	// buffer to receive converted string
+			for(int k = 0; k < j; k++)
+			{
+				sscanf(auxv,"%d",&i);
+				auxv += numbersize(i) + 1;
+				write(outfile,text,i);
+				text += i;
+				switch(*auxb++)
+				{
+					case 0:			// no type
+						break;
+					case 1:			// int
+						i = convert(&auxw,*((int*)auxb));
+						write(outfile,auxw,i);
+						auxb += sizeof(int);
+						break;
+					case 2:			// unsigned int
+						i = convert(&auxw,*((unsigned int*)auxb));
+						write(outfile,auxw,i);
+						auxb += sizeof(unsigned int);
+						break;
+					case 3:			// long
+						i = convert(&auxw,*((long*)auxb));
+						write(outfile,auxw,i);
+						auxb += sizeof(long);
+						break;
+					case 4:			// long long
+						i = convert(&auxw,*((long long*)auxb));
+						write(outfile,auxw,i);
+						auxb += sizeof(long long);
+						break;
+					case 5:			// unsigned long long
+						i = convert(&auxw,*((unsigned long long*)auxb));
+						write(outfile,auxw,i);
+						auxb += sizeof(unsigned long long);
+						break;
+					case 6:			// float
+						i = convert(&auxw,*((float*)auxb),3);
+						write(outfile,auxw,i);
+						auxb += sizeof(float);
+						break;
+					case 7:			// double
+						i = convert(&auxw,*((double*)auxb),3);
+						write(outfile,auxw,i);
+						auxb += sizeof(double);
+						break;
+					case 8:			// long double
+						break;
+					case 9:			// char
+						break;
+					default:
+						error_die("Data type unknown");
+				}
+			}
+			sscanf(auxv,"%d",&i);
+			if(i >= 0)
+				cout << "Non negative value" << endl;
+			else
+				i *= -1;
+			write(outfile,text,i);
+			
+			delete[] auxw;
+			delete[] var;
+		}
+		close(infile);
+		close(outfile);
+
 	}
-	else
-	{
-		ofstream out("static.dat");
-		if(read(sockfd,buff,BUFFSIZE - 1) < 0)
-			error_die("Error reading from socket");
-		out << buff;
-		out.close();
-	}
+	// else
+	// {
+	// }
 
 
 	close(sockfd);
 
 	freeaddrinfo(result);
-
-	/*
-	// File reconstruction
-	ifstream fixed("fixed.dat");
-	ifstream vec("vec.dat");
-
-	if(fixed.is_open() && vec.is_open())
-	{
-		cout << "Unable to open files" << endl;
-		return 0;
-	}
-
-	ofstream file("rec.html");
-
-	string vline;
-	string fline;
-	int cline = 0;
-	int i = 0;
-
-	while(getline(vec,vline))
-	{
-		if(vline[0]=='-')
-		{
-			if(i)
-				file << (fline.c_str()+i) << endl;
-			while(getline(fixed,fline))
-				file << fline << endl;
-			break;
-		}
-		else
-		{
-			int l,c,n;
-			sscanf(vline.c_str(),"%d,%d,%d",&l,&c,&n);
-			if((cline < l)&&i)
-			{
-				file << (fline.c_str()+i) << endl;
-				cline++;
-				i = 0;
-			}
-			while(cline < l)
-			{
-				getline(fixed,fline);
-				file << fline << endl;
-				cline++;
-				i = 0;
-			}
-			if(cline==l)
-			{
-				if(!i)
-					getline(fixed,fline);
-				for(; i<c; i++)
-					file << fline[i];
-				file << v[n];
-			}
-		}
-	}
-	file.close();
-	fixed.close();
-	vec.close();*/
 
 	return 0;
 }

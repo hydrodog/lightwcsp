@@ -1,5 +1,5 @@
 CPP = g++ -std=c++11
-OBJ = Config.o Logger.o HttpRequest.o FileSys.o Buffer.o server.o CspServlet.o InMemoryFileServlet.o FileServlet.o Bench.o Signal.o
+OBJ = Config.o Logger.o HttpRequest.o FileSys.o Buffer.o server.o CspServlet.o InMemoryFileServlet.o FileServlet.o HttpsServer.o
 OPT = #-O3
 DEBUG = -g
 INCLUDE = -I include/
@@ -36,11 +36,8 @@ server.o: server.cc include/HttpRequest.hh
 Buffer.o: Buffer.cc include/Buffer.hh
 	$(COMP) -c Buffer.cc
 
-Bench.o: Bench.cc
-	$(COMP) -c Bench.cc
-
-Signal.o:Signal.cc
-	$(COMP) -c Signal.cc
+HttpsServer.o: HttpsServer.cc 
+	$(COMP) -c HttpsServer.cc
 
 clean:
 	rm -rf *o server

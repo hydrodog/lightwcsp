@@ -20,7 +20,7 @@
 #include <FileSys.hh>
 #include <server.hh>
 #include <CspServlet.hh>
-#define debug 1
+#define debug 0
 using namespace std;
 
 std::unordered_map<std::string,std::string> mimeType;

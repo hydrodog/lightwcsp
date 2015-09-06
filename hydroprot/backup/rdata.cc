@@ -8,8 +8,9 @@ using namespace std;
 int main(int argc,char *argv[])
 {
 	ifstream fixed("fixed.dat");
+	ifstream vec("vec.dat");
 
-	if(!fixed.is_open())
+	if((!fixed.is_open())||(!vec.is_open()))
 	{
 		cout << "Unable to open files" << endl;
 		return 0;
@@ -17,6 +18,7 @@ int main(int argc,char *argv[])
 
 	ofstream file("rec.html");
 
+	string vline;
 	string fline;
 	int cline = 0;
 	int i = 0;

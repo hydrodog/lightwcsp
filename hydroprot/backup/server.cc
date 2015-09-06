@@ -157,22 +157,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				char *aux = buff;
-				aux[0] = 1;
-				*((int*)(aux+1)) = 325;
-				aux += 1 + sizeof(int);
-				aux[0] = 5;
-				*((unsigned long long*)(aux+1)) = 223314;
-				aux += 1 + sizeof(unsigned long long);
-				aux[0] = 6;
-				*((float*)(aux+1)) = 22.3314;
-				aux += 1 + sizeof(float);
-				aux[0] = 7;
-				*((double*)(aux+1)) = 2.23314;
-				aux += 1 + sizeof(double);
-				aux[0] = 3;
-				*((long*)(aux+1)) = -223314;
-				write(client_sock, buff, BUFFSIZE - 1);
+				write(client_sock, "4988.36,00.00,4988.36,00.00,5000.00,11.64,5000.00,00.00,4988.36", BUFFSIZE - 1);
 			}
 			
 			// Send message back (same as write())
