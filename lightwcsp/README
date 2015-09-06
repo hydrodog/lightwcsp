@@ -1,7 +1,22 @@
-The Lightweight C++ Server Pages project is an ultra-high performance web serverwritten in C++. It is very limited at the moment, but very fast.
+The Lightweight C++ Server Pages project is an ultra-high performance web server written in C++.
+Designed by Dov Kruger at Stevens Institute of Technology.
+Four people have worked on this project:
 
-We are adding an integrated security mechanism that will quickly handle the following requests
+Dov Kruger
+Andres Contreras
+Junyang Zheng
+Marco Brunoro Thome
 
-1. Simple page requests.  These are serviced without checking
-2. Secure page requests.  These are services after checking whether this user is allowed acces.
-3. Dynamic pages through JSP-like implementation in C++.
+LCSP is limited at the moment, but very fast.  Current functionality:
+1. Simple page request preloading files into RAM for speed with a single send for small files
+2. Secure checking for filenames by preloading files.
+3. Integrated benchmarking.
+4. Dynamic pages through a JSP-like implementation
+
+New features under construction:
+
+1. Security manager: Simple page requests.  These are serviced without checking
+2. Security manager: Secure page requests.  These are services after checking whether this user is allowed acces.
+3. SSL encryption
+4. Hardware Optimization of AES-256 (see hardware team separately)
+5. New template language and high performance protocols
