@@ -1,0 +1,4 @@
+Create identical pluggable objects, each containing a wait loop on a socket.  The only virtual call should be to get in.
+
+A server can be configured with multiple objects, each with its own thread.  If so, the servers must worry about thread safety of the objects within.
+
